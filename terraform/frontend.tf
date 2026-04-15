@@ -85,7 +85,9 @@ resource "aws_cloudfront_distribution" "frontend" {
     forwarded_values {
       query_string = true
       headers      = ["Authorization", "Content-Type", "Accept", "Origin"]
-      cookies      = { forward = "all" }
+      cookies {
+        forward = "all"
+      }
     }
 
     min_ttl     = 0
@@ -103,7 +105,9 @@ resource "aws_cloudfront_distribution" "frontend" {
 
     forwarded_values {
       query_string = false
-      cookies      = { forward = "none" }
+      cookies {
+        forward = "none"
+      }
     }
 
     min_ttl     = 0
