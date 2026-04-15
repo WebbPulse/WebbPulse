@@ -26,9 +26,7 @@ resource "aws_cloudfront_origin_access_control" "frontend" {
   signing_protocol                  = "sigv4"
 }
 
-# Commented out until ACM certificate is issued.
 # Allow CloudFront (and only CloudFront) to read from the bucket
-/*
 resource "aws_s3_bucket_policy" "frontend" {
   bucket = aws_s3_bucket.frontend.id
 
@@ -48,10 +46,7 @@ resource "aws_s3_bucket_policy" "frontend" {
     }]
   })
 }
-*/
 
-# Commented out until ACM certificate is issued.
-/*
 resource "aws_cloudfront_distribution" "frontend" {
   enabled             = true
   is_ipv6_enabled     = true
@@ -147,4 +142,3 @@ resource "aws_cloudfront_distribution" "frontend" {
     }
   }
 }
-*/

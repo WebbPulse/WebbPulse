@@ -13,8 +13,6 @@ resource "aws_route53_zone" "webbpulse" {
 # www — CloudFront distribution
 # ---------------------------------------------------------------------------
 
-# Commented out until ACM certificate is issued.
-/*
 resource "aws_route53_record" "www" {
   zone_id = aws_route53_zone.webbpulse.zone_id
   name    = "www.webbpulse.com"
@@ -26,7 +24,6 @@ resource "aws_route53_record" "www" {
     evaluate_target_health = false
   }
 }
-*/
 
 # ---------------------------------------------------------------------------
 # Apex redirect: webbpulse.com → www.webbpulse.com via S3 website bucket

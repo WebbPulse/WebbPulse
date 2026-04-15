@@ -23,11 +23,10 @@ output "frontend_url" {
   value       = "https://www.webbpulse.com"
 }
 
-# Commented out until ACM certificate is issued.
-# output "cloudfront_distribution_id" {
-#   description = "CloudFront distribution ID — used by CI/CD to invalidate cache after deploys"
-#   value       = aws_cloudfront_distribution.frontend.id
-# }
+output "cloudfront_distribution_id" {
+  description = "CloudFront distribution ID — used by CI/CD to invalidate cache after deploys"
+  value       = aws_cloudfront_distribution.frontend.id
+}
 
 output "frontend_bucket" {
   description = "S3 bucket name for frontend asset uploads"

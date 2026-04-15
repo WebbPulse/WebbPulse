@@ -95,15 +95,14 @@ resource "aws_iam_role_policy" "github_actions_deploy" {
         ]
       },
       # CloudFront — invalidate the cache after a frontend deploy
-      # Commented out until ACM certificate is issued.
-      # {
-      #   Effect = "Allow"
-      #   Action = [
-      #     "cloudfront:CreateInvalidation",
-      #     "cloudfront:GetInvalidation",
-      #   ]
-      #   Resource = aws_cloudfront_distribution.frontend.arn
-      # },
+      {
+        Effect = "Allow"
+        Action = [
+          "cloudfront:CreateInvalidation",
+          "cloudfront:GetInvalidation",
+        ]
+        Resource = aws_cloudfront_distribution.frontend.arn
+      },
     ]
   })
 }
