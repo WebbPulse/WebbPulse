@@ -34,8 +34,8 @@ output "frontend_bucket" {
 }
 
 output "backend_url" {
-  description = "App Runner service URL (direct, without CloudFront)"
-  value       = "https://${aws_apprunner_service.backend.service_url}"
+  description = "Public API URL (App Runner custom domain)"
+  value       = "https://api.webbpulse.com"
 }
 
 output "ecr_repository_url" {

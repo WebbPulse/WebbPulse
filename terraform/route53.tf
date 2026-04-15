@@ -25,21 +25,36 @@ resource "aws_route53_record" "www" {
   }
 }
 
-# Dedicated CloudFront distribution — all paths forwarded to App Runner.
+# ---------------------------------------------------------------------------
+# api.webbpulse.com — App Runner custom domain
+#
+# App Runner issues its own TLS cert; these CNAMEs prove domain ownership.
+# The second record (api) routes traffic to the App Runner service endpoint.
+# ---------------------------------------------------------------------------
+
+resource "aws_route53_record" "apprunner_cert_validation" {
+  for_each = {
+    for r in aws_apprunner_custom_domain_association.api.certificate_validation_records : r.name => r
+  }
+
+  zone_id = aws_route53_zone.webbpulse.zone_id
+  name    = each.value.name
+  type    = each.value.type
+  ttl     = 300
+  records = [each.value.value]
+}
+
 resource "aws_route53_record" "api" {
   zone_id = aws_route53_zone.webbpulse.zone_id
   name    = "api.webbpulse.com"
-  type    = "A"
-
-  alias {
-    name                   = aws_cloudfront_distribution.api.domain_name
-    zone_id                = aws_cloudfront_distribution.api.hosted_zone_id
-    evaluate_target_health = false
-  }
+  type    = "CNAME"
+  ttl     = 300
+  records = [aws_apprunner_custom_domain_association.api.dns_target]
 }
 
 # ---------------------------------------------------------------------------
-# Apex redirect: webbpulse.com → www.webbpulse.com via S3 website bucket
+# Apex: webbpulse.com → same CloudFront distribution as www
+# A CloudFront Function on the distribution redirects to www.webbpulse.com.
 # ---------------------------------------------------------------------------
 resource "aws_route53_record" "apex_a" {
   zone_id = aws_route53_zone.webbpulse.zone_id
@@ -47,8 +62,8 @@ resource "aws_route53_record" "apex_a" {
   type    = "A"
 
   alias {
-    name                   = aws_s3_bucket_website_configuration.apex_redirect.website_endpoint
-    zone_id                = aws_s3_bucket.apex_redirect.hosted_zone_id
+    name                   = aws_cloudfront_distribution.frontend.domain_name
+    zone_id                = aws_cloudfront_distribution.frontend.hosted_zone_id
     evaluate_target_health = false
   }
 }

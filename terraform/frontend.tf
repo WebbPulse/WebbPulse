@@ -1,13 +1,13 @@
 # ---------------------------------------------------------------------------
-# Frontend — private S3 bucket served via CloudFront (www.webbpulse.com)
+# Frontend — private S3 bucket served via CloudFront
 #
-# /api/* requests are proxied to App Runner (no caching, all headers forwarded)
-# so the frontend can call relative /api/v1/... paths without CORS issues.
-# All other requests serve the React SPA from S3; 403/404 → index.html
-# for client-side routing.
+# webbpulse.com and www.webbpulse.com both point at this distribution.
+# A CloudFront Function 301-redirects the bare apex to www.
+# 403/404 from S3 → index.html for client-side React Router.
 #
-# api.webbpulse.com has its own separate distribution (see bottom of file)
-# that routes ALL paths directly to App Runner.
+# The backend is served independently via App Runner at api.webbpulse.com
+# (see backend.tf + route53.tf). The frontend calls api.webbpulse.com
+# directly — there is no proxying through CloudFront.
 # ---------------------------------------------------------------------------
 
 resource "aws_s3_bucket" "frontend" {
@@ -54,51 +54,15 @@ resource "aws_cloudfront_distribution" "frontend" {
   enabled             = true
   is_ipv6_enabled     = true
   default_root_object = "index.html"
-  aliases             = ["www.webbpulse.com"]
+  aliases             = ["www.webbpulse.com", "webbpulse.com"]
   price_class         = "PriceClass_100" # US + Europe + Canada — cheapest tier
 
-  # S3 origin (React SPA assets)
   origin {
     domain_name              = aws_s3_bucket.frontend.bucket_regional_domain_name
     origin_id                = "s3-frontend"
     origin_access_control_id = aws_cloudfront_origin_access_control.frontend.id
   }
 
-  # App Runner origin (FastAPI backend)
-  origin {
-    domain_name = aws_apprunner_service.backend.service_url
-    origin_id   = "apprunner-backend"
-
-    custom_origin_config {
-      http_port              = 80
-      https_port             = 443
-      origin_protocol_policy = "https-only"
-      origin_ssl_protocols   = ["TLSv1.2"]
-    }
-  }
-
-  # /api/* → App Runner, no caching, full passthrough
-  ordered_cache_behavior {
-    path_pattern           = "/api/*"
-    target_origin_id       = "apprunner-backend"
-    viewer_protocol_policy = "https-only"
-    allowed_methods        = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-    cached_methods         = ["GET", "HEAD"]
-
-    forwarded_values {
-      query_string = true
-      headers      = ["Authorization", "Content-Type", "Accept", "Origin"]
-      cookies {
-        forward = "all"
-      }
-    }
-
-    min_ttl     = 0
-    default_ttl = 0
-    max_ttl     = 0
-  }
-
-  # Default → S3 (SPA assets, long cache)
   default_cache_behavior {
     target_origin_id       = "s3-frontend"
     viewer_protocol_policy = "redirect-to-https"
@@ -116,6 +80,11 @@ resource "aws_cloudfront_distribution" "frontend" {
     min_ttl     = 0
     default_ttl = 86400
     max_ttl     = 31536000
+
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.apex_redirect.arn
+    }
   }
 
   # Serve index.html for all S3 misses (React Router handles the rest)
@@ -147,58 +116,45 @@ resource "aws_cloudfront_distribution" "frontend" {
 }
 
 # ---------------------------------------------------------------------------
-# API subdomain — dedicated CloudFront distribution for api.webbpulse.com
-#
-# All paths forwarded to App Runner so that /docs, /redoc, /api/v1/*, etc.
-# all reach FastAPI directly instead of falling back to the S3 frontend.
+# CloudFront Function — redirect bare apex (webbpulse.com) to www
 # ---------------------------------------------------------------------------
 
-resource "aws_cloudfront_distribution" "api" {
-  enabled         = true
-  is_ipv6_enabled = true
-  aliases         = ["api.webbpulse.com"]
-  price_class     = "PriceClass_100"
+resource "aws_cloudfront_function" "apex_redirect" {
+  name    = "${local.prefix}-apex-redirect"
+  runtime = "cloudfront-js-2.0"
+  publish = true
 
-  origin {
-    domain_name = aws_apprunner_service.backend.service_url
-    origin_id   = "apprunner-backend"
-
-    custom_origin_config {
-      http_port              = 80
-      https_port             = 443
-      origin_protocol_policy = "https-only"
-      origin_ssl_protocols   = ["TLSv1.2"]
-    }
-  }
-
-  default_cache_behavior {
-    target_origin_id       = "apprunner-backend"
-    viewer_protocol_policy = "https-only"
-    allowed_methods        = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-    cached_methods         = ["GET", "HEAD"]
-
-    forwarded_values {
-      query_string = true
-      headers      = ["Authorization", "Content-Type", "Accept", "Origin"]
-      cookies {
-        forward = "all"
+  code = <<-EOF
+    async function handler(event) {
+      const host = event.request.headers.host
+        ? event.request.headers.host.value
+        : "";
+      if (host === "webbpulse.com") {
+        return {
+          statusCode: 301,
+          statusDescription: "Moved Permanently",
+          headers: {
+            location: {
+              value: "https://www.webbpulse.com" + event.request.uri,
+            },
+          },
+        };
       }
+      return event.request;
     }
+  EOF
+}
 
-    min_ttl     = 0
-    default_ttl = 0
-    max_ttl     = 0
-  }
+# ---------------------------------------------------------------------------
+# App Runner custom domain — api.webbpulse.com → App Runner service
+#
+# App Runner provisions and manages the TLS certificate automatically.
+# After apply, App Runner emits certificate_validation_records that must be
+# present in Route53 for the domain to become active (see route53.tf).
+# ---------------------------------------------------------------------------
 
-  viewer_certificate {
-    acm_certificate_arn      = aws_acm_certificate_validation.www.certificate_arn
-    ssl_support_method       = "sni-only"
-    minimum_protocol_version = "TLSv1.2_2021"
-  }
-
-  restrictions {
-    geo_restriction {
-      restriction_type = "none"
-    }
-  }
+resource "aws_apprunner_custom_domain_association" "api" {
+  service_arn          = aws_apprunner_service.backend.arn
+  domain_name          = "api.webbpulse.com"
+  enable_www_subdomain = false
 }
