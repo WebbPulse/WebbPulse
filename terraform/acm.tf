@@ -1,13 +1,14 @@
 # ---------------------------------------------------------------------------
-# ACM certificate for www.webbpulse.com
+# ACM certificate for CloudFront alternate domain names (www + api).
 # Must live in us-east-1 — CloudFront only accepts us-east-1 certs.
 # DNS validation records are created automatically in Route53.
 # ---------------------------------------------------------------------------
 
 resource "aws_acm_certificate" "www" {
-  provider          = aws.us_east_1
-  domain_name       = "www.webbpulse.com"
-  validation_method = "DNS"
+  provider                  = aws.us_east_1
+  domain_name               = "www.webbpulse.com"
+  subject_alternative_names = ["api.webbpulse.com"]
+  validation_method         = "DNS"
 
   lifecycle {
     create_before_destroy = true

@@ -51,7 +51,7 @@ resource "aws_cloudfront_distribution" "frontend" {
   enabled             = true
   is_ipv6_enabled     = true
   default_root_object = "index.html"
-  aliases             = ["www.webbpulse.com"]
+  aliases             = ["www.webbpulse.com", "api.webbpulse.com"]
   price_class         = "PriceClass_100" # US + Europe + Canada — cheapest tier
 
   # S3 origin (React SPA assets)

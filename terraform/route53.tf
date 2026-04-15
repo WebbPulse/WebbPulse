@@ -25,6 +25,19 @@ resource "aws_route53_record" "www" {
   }
 }
 
+# Same CloudFront distribution — /api/* is routed to App Runner (see frontend.tf).
+resource "aws_route53_record" "api" {
+  zone_id = aws_route53_zone.webbpulse.zone_id
+  name    = "api.webbpulse.com"
+  type    = "A"
+
+  alias {
+    name                   = aws_cloudfront_distribution.frontend.domain_name
+    zone_id                = aws_cloudfront_distribution.frontend.hosted_zone_id
+    evaluate_target_health = false
+  }
+}
+
 # ---------------------------------------------------------------------------
 # Apex redirect: webbpulse.com → www.webbpulse.com via S3 website bucket
 # ---------------------------------------------------------------------------

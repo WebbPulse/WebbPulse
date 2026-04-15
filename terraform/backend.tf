@@ -127,8 +127,8 @@ resource "aws_apprunner_service" "backend" {
         }
 
         runtime_environment_variables = {
-          ENVIRONMENT        = var.environment
-          CORS_ORIGINS       = "https://www.webbpulse.com,https://webbpulse.com"
+          ENVIRONMENT         = var.environment
+          CORS_ORIGINS        = "https://www.webbpulse.com,https://webbpulse.com"
           SENDGRID_FROM_EMAIL = "noreply@webbpulse.com"
           SENDGRID_FROM_NAME  = "Tyler Webb Portfolio"
         }
