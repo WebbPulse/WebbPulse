@@ -4,6 +4,24 @@ variable "aws_region" {
   default     = "us-west-2"
 }
 
+variable "db_instance_class" {
+  description = "RDS instance type"
+  type        = string
+  default     = "db.t4g.micro"
+}
+
+variable "db_name" {
+  description = "PostgreSQL database name"
+  type        = string
+  default     = "webbpulse"
+}
+
+variable "db_username" {
+  description = "PostgreSQL master username"
+  type        = string
+  default     = "webbpulse"
+}
+
 variable "environment" {
   description = "Deployment environment (production, staging)"
   type        = string

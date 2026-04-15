@@ -17,3 +17,33 @@ output "webbpulse_name_servers" {
   description = "Authoritative name servers for webbpulse.com"
   value       = aws_route53_zone.webbpulse.name_servers
 }
+
+output "frontend_url" {
+  description = "CloudFront URL for the frontend"
+  value       = "https://www.webbpulse.com"
+}
+
+output "cloudfront_distribution_id" {
+  description = "CloudFront distribution ID — used by CI/CD to invalidate cache after deploys"
+  value       = aws_cloudfront_distribution.frontend.id
+}
+
+output "frontend_bucket" {
+  description = "S3 bucket name for frontend asset uploads"
+  value       = aws_s3_bucket.frontend.bucket
+}
+
+output "backend_url" {
+  description = "App Runner service URL (direct, without CloudFront)"
+  value       = "https://${aws_apprunner_service.backend.service_url}"
+}
+
+output "ecr_repository_url" {
+  description = "ECR repository URL — push Docker images here before first App Runner deploy"
+  value       = aws_ecr_repository.backend.repository_url
+}
+
+output "db_endpoint" {
+  description = "RDS endpoint (host:port) — available within the VPC only"
+  value       = aws_db_instance.main.endpoint
+}
