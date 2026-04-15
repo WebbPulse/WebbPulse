@@ -23,21 +23,21 @@ output "frontend_url" {
   value       = "https://www.webbpulse.com"
 }
 
-output "cloudfront_distribution_id" {
-  description = "CloudFront distribution ID — used by CI/CD to invalidate cache after deploys"
-  value       = aws_cloudfront_distribution.frontend.id
-}
+# Commented out until ACM certificate is issued.
+# output "cloudfront_distribution_id" {
+#   description = "CloudFront distribution ID — used by CI/CD to invalidate cache after deploys"
+#   value       = aws_cloudfront_distribution.frontend.id
+# }
 
 output "frontend_bucket" {
   description = "S3 bucket name for frontend asset uploads"
   value       = aws_s3_bucket.frontend.bucket
 }
 
-# Commented out until App Runner service is provisioned.
-# output "backend_url" {
-#   description = "App Runner service URL (direct, without CloudFront)"
-#   value       = "https://${aws_apprunner_service.backend.service_url}"
-# }
+output "backend_url" {
+  description = "App Runner service URL (direct, without CloudFront)"
+  value       = "https://${aws_apprunner_service.backend.service_url}"
+}
 
 output "ecr_repository_url" {
   description = "ECR repository URL — push Docker images here before first App Runner deploy"

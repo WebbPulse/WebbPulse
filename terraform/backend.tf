@@ -94,21 +94,16 @@ resource "aws_iam_role_policy" "apprunner_ssm" {
 # VPC connector — lets App Runner reach private RDS; NAT handles internet
 # ---------------------------------------------------------------------------
 
-# Commented out until the initial ECR image exists.
-# Uncomment and run `terraform apply` after the first Docker image is pushed.
-/*
 resource "aws_apprunner_vpc_connector" "main" {
   vpc_connector_name = local.prefix
   subnets            = [aws_subnet.private_a.id, aws_subnet.private_b.id]
   security_groups    = [aws_security_group.apprunner_connector.id]
 }
-*/
 
 # ---------------------------------------------------------------------------
 # App Runner service
 # ---------------------------------------------------------------------------
 
-/*
 resource "aws_apprunner_service" "backend" {
   service_name = "${local.prefix}-backend"
 
@@ -168,4 +163,3 @@ resource "aws_apprunner_service" "backend" {
     ]
   }
 }
-*/

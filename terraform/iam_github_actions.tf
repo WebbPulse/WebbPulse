@@ -78,12 +78,11 @@ resource "aws_iam_role_policy" "github_actions_deploy" {
         Resource = aws_ecr_repository.backend.arn
       },
       # App Runner — trigger redeployment and poll readiness before deploying
-      # Commented out until App Runner service is provisioned.
-      # {
-      #   Effect   = "Allow"
-      #   Action   = ["apprunner:StartDeployment", "apprunner:DescribeService"]
-      #   Resource = aws_apprunner_service.backend.arn
-      # },
+      {
+        Effect   = "Allow"
+        Action   = ["apprunner:StartDeployment", "apprunner:DescribeService"]
+        Resource = aws_apprunner_service.backend.arn
+      },
       # S3 — sync frontend build artefacts
       {
         Effect = "Allow"
@@ -99,14 +98,15 @@ resource "aws_iam_role_policy" "github_actions_deploy" {
         ]
       },
       # CloudFront — invalidate the cache after a frontend deploy
-      {
-        Effect = "Allow"
-        Action = [
-          "cloudfront:CreateInvalidation",
-          "cloudfront:GetInvalidation",
-        ]
-        Resource = aws_cloudfront_distribution.frontend.arn
-      },
+      # Commented out until ACM certificate is issued.
+      # {
+      #   Effect = "Allow"
+      #   Action = [
+      #     "cloudfront:CreateInvalidation",
+      #     "cloudfront:GetInvalidation",
+      #   ]
+      #   Resource = aws_cloudfront_distribution.frontend.arn
+      # },
     ]
   })
 }

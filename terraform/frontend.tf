@@ -26,7 +26,9 @@ resource "aws_cloudfront_origin_access_control" "frontend" {
   signing_protocol                  = "sigv4"
 }
 
+# Commented out until ACM certificate is issued.
 # Allow CloudFront (and only CloudFront) to read from the bucket
+/*
 resource "aws_s3_bucket_policy" "frontend" {
   bucket = aws_s3_bucket.frontend.id
 
@@ -46,7 +48,10 @@ resource "aws_s3_bucket_policy" "frontend" {
     }]
   })
 }
+*/
 
+# Commented out until ACM certificate is issued.
+/*
 resource "aws_cloudfront_distribution" "frontend" {
   enabled             = true
   is_ipv6_enabled     = true
@@ -62,9 +67,6 @@ resource "aws_cloudfront_distribution" "frontend" {
   }
 
   # App Runner origin (FastAPI backend)
-  # Commented out until App Runner service is provisioned.
-  # Uncomment together with the service block in backend.tf.
-  /*
   origin {
     domain_name = aws_apprunner_service.backend.service_url
     origin_id   = "apprunner-backend"
@@ -76,11 +78,8 @@ resource "aws_cloudfront_distribution" "frontend" {
       origin_ssl_protocols   = ["TLSv1.2"]
     }
   }
-  */
 
   # /api/* → App Runner, no caching, full passthrough
-  # Commented out until App Runner service is provisioned.
-  /*
   ordered_cache_behavior {
     path_pattern           = "/api/*"
     target_origin_id       = "apprunner-backend"
@@ -100,7 +99,6 @@ resource "aws_cloudfront_distribution" "frontend" {
     default_ttl = 0
     max_ttl     = 0
   }
-  */
 
   # Default → S3 (SPA assets, long cache)
   default_cache_behavior {
@@ -149,3 +147,4 @@ resource "aws_cloudfront_distribution" "frontend" {
     }
   }
 }
+*/
