@@ -131,7 +131,7 @@ resource "aws_security_group" "apprunner_connector" {
 
 resource "aws_security_group" "rds" {
   name        = "${local.prefix}-rds"
-  description = "RDS PostgreSQL — ingress from App Runner only"
+  description = "RDS PostgreSQL - ingress from App Runner only"
   vpc_id      = aws_vpc.main.id
 
   ingress {

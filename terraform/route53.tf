@@ -80,9 +80,10 @@ resource "aws_route53_record" "dkim" {
   name    = "google._domainkey.webbpulse.com"
   type    = "TXT"
   ttl     = 300
-  # TXT strings are limited to 255 characters each; split the key across two quoted chunks.
+  # Each list element is a separate TXT character-string (max 255 octets each).
   records = [
-    "\"v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA21lP0OGD3iNqzHSvnhkzVjdLcgbSG7Is6YZUKCe8GCw5sqCoAWjGpZbYZlwkxVhrxmkoaI02j9MgxIX0sHBzDI2Lsp5MK3mHJ442ED67zbKDQRX42DMzIRdGYOLo35QK9R/BGK9D3uKvy8CWYStaPpFMqrclMiGWsgvbY8ym9EoZHEjUDG7hDuRNkjR1NSam\" \"gZe8sPI/9pb5gr243DfCtfqVvrweWGby8i96STkKYZlCERC6zYD4knjmvnKejmzgc4QDDIEqpOxEIaw9785RTAHDhEnxfSR84QVw1e/t3sFAs17Enz3MPTGKHVGFrRNxHH7+qFcJC/Xqj+K9FgzPpwIDAQAB\""
+    "v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA21lP0OGD3iNqzHSvnhkzVjdLcgbSG7Is6YZUKCe8GCw5sqCoAWjGpZbYZlwkxVhrxmkoaI02j9MgxIX0sHBzDI2Lsp5MK3mHJ442ED67zbKDQRX42DMzIRdGYOLo35QK9R/BGK9D3uKvy8CWYStaPpFMqrclMiGWsgvbY8ym9EoZHEjUDG7hDuRNkjR1NSam",
+    "gZe8sPI/9pb5gr243DfCtfqVvrweWGby8i96STkKYZlCERC6zYD4knjmvnKejmzgc4QDDIEqpOxEIaw9785RTAHDhEnxfSR84QVw1e/t3sFAs17Enz3MPTGKHVGFrRNxHH7+qFcJC/Xqj+K9FgzPpwIDAQAB",
   ]
 }
 
