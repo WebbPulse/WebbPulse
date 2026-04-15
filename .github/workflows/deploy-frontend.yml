@@ -1,0 +1,113 @@
+# Builds and deploys the React frontend to S3/CloudFront on push to main.
+# AWS resources (S3, CloudFront) must already exist in Terraform state.
+#
+# Ordering guarantee: the npm build runs immediately (no conflict with Terraform), but
+# before syncing to S3 the job waits for any active HCP Terraform run on the
+# WebbPulse workspace to reach a terminal state. This prevents partial deploys
+# against infrastructure that is mid-update.
+#
+# GitHub Actions variables required (Settings → Secrets and variables → Variables):
+#   AWS_DEPLOY_ROLE_ARN          — IAM role ARN for OIDC (e.g. arn:aws:iam::ACCOUNT:role/webbpulse-production-github-actions-deploy)
+#   FRONTEND_S3_BUCKET           — S3 bucket name (terraform output frontend_bucket)
+#   CLOUDFRONT_DISTRIBUTION_ID   — CloudFront distribution ID (terraform output cloudfront_distribution_id)
+#
+# GitHub Actions secrets required (Settings → Secrets and variables → Secrets):
+#   TFC_API_TOKEN                — HCP Terraform user/team token (for workspace polling)
+name: Deploy Frontend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/deploy-frontend.yml"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+
+    env:
+      AWS_REGION: us-west-2
+      TFC_ORG: WebbPulseTerraform
+      TFC_WORKSPACE: WebbPulse
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      # Build runs in parallel with any active Terraform run — it is purely local.
+      - name: Build
+        working-directory: frontend
+        run: npm run build
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # Wait for HCP Terraform to finish before touching S3/CloudFront.
+      # Polls every 15 s for up to 10 min (40 attempts).
+      - name: Wait for Terraform run to complete
+        env:
+          TFC_API_TOKEN: ${{ secrets.TFC_API_TOKEN }}
+        run: |
+          TFC_WORKSPACE_ID=$(curl -sfg \
+            -H "Authorization: Bearer $TFC_API_TOKEN" \
+            -H "Content-Type: application/vnd.api+json" \
+            "https://app.terraform.io/api/v2/organizations/$TFC_ORG/workspaces/$TFC_WORKSPACE" \
+            | python3 -c "import sys, json; print(json.load(sys.stdin)['data']['id'])")
+          echo "Resolved workspace ID: $TFC_WORKSPACE_ID"
+
+          TERMINAL="applied planned_and_finished discarded errored canceled force_canceled"
+          echo "Polling HCP Terraform workspace $TFC_WORKSPACE for active runs..."
+          for i in $(seq 1 40); do
+            RESPONSE=$(curl -sfg \
+              -H "Authorization: Bearer $TFC_API_TOKEN" \
+              -H "Content-Type: application/vnd.api+json" \
+              "https://app.terraform.io/api/v2/workspaces/$TFC_WORKSPACE_ID/runs?page[size]=1")
+            STATUS=$(echo "$RESPONSE" | python3 -c "
+          import sys, json
+          runs = json.load(sys.stdin).get('data', [])
+          print(runs[0]['attributes']['status'] if runs else 'no_runs')
+          ")
+            echo "  Attempt $i/40 — Terraform run status: $STATUS"
+            if echo "$TERMINAL" | grep -qw "$STATUS" || [ "$STATUS" = "no_runs" ]; then
+              echo "Terraform is idle. Proceeding."
+              break
+            fi
+            if [ "$i" -eq 40 ]; then
+              echo "Timed out waiting for Terraform (last status: $STATUS)."
+              exit 1
+            fi
+            sleep 15
+          done
+
+      - name: Sync to S3
+        env:
+          FRONTEND_BUCKET: ${{ vars.FRONTEND_S3_BUCKET }}
+        run: |
+          aws s3 sync frontend/dist/ s3://$FRONTEND_BUCKET/ --delete
+
+      - name: Invalidate CloudFront cache
+        if: ${{ vars.CLOUDFRONT_DISTRIBUTION_ID != '' }}
+        env:
+          CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id $CLOUDFRONT_DISTRIBUTION_ID \
+            --paths "/*"

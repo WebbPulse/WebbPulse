@@ -109,7 +109,7 @@ resource "aws_route_table_association" "private_b" {
 
 resource "aws_security_group" "apprunner_connector" {
   name        = "${local.prefix}-apprunner-connector"
-  description = "App Runner VPC connector — egress to RDS and internet via NAT"
+  description = "App Runner VPC connector - egress to RDS and internet via NAT"
   vpc_id      = aws_vpc.main.id
 
   egress {

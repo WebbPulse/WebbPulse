@@ -33,10 +33,11 @@ output "frontend_bucket" {
   value       = aws_s3_bucket.frontend.bucket
 }
 
-output "backend_url" {
-  description = "App Runner service URL (direct, without CloudFront)"
-  value       = "https://${aws_apprunner_service.backend.service_url}"
-}
+# Commented out until App Runner service is provisioned.
+# output "backend_url" {
+#   description = "App Runner service URL (direct, without CloudFront)"
+#   value       = "https://${aws_apprunner_service.backend.service_url}"
+# }
 
 output "ecr_repository_url" {
   description = "ECR repository URL — push Docker images here before first App Runner deploy"
