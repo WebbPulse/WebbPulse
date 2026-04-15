@@ -1,10 +1,13 @@
 # ---------------------------------------------------------------------------
-# Frontend — private S3 bucket served via CloudFront
+# Frontend — private S3 bucket served via CloudFront (www.webbpulse.com)
 #
 # /api/* requests are proxied to App Runner (no caching, all headers forwarded)
 # so the frontend can call relative /api/v1/... paths without CORS issues.
 # All other requests serve the React SPA from S3; 403/404 → index.html
 # for client-side routing.
+#
+# api.webbpulse.com has its own separate distribution (see bottom of file)
+# that routes ALL paths directly to App Runner.
 # ---------------------------------------------------------------------------
 
 resource "aws_s3_bucket" "frontend" {
@@ -51,7 +54,7 @@ resource "aws_cloudfront_distribution" "frontend" {
   enabled             = true
   is_ipv6_enabled     = true
   default_root_object = "index.html"
-  aliases             = ["www.webbpulse.com", "api.webbpulse.com"]
+  aliases             = ["www.webbpulse.com"]
   price_class         = "PriceClass_100" # US + Europe + Canada — cheapest tier
 
   # S3 origin (React SPA assets)
@@ -128,6 +131,63 @@ resource "aws_cloudfront_distribution" "frontend" {
     response_code         = 200
     response_page_path    = "/index.html"
     error_caching_min_ttl = 10
+  }
+
+  viewer_certificate {
+    acm_certificate_arn      = aws_acm_certificate_validation.www.certificate_arn
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2021"
+  }
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+    }
+  }
+}
+
+# ---------------------------------------------------------------------------
+# API subdomain — dedicated CloudFront distribution for api.webbpulse.com
+#
+# All paths forwarded to App Runner so that /docs, /redoc, /api/v1/*, etc.
+# all reach FastAPI directly instead of falling back to the S3 frontend.
+# ---------------------------------------------------------------------------
+
+resource "aws_cloudfront_distribution" "api" {
+  enabled         = true
+  is_ipv6_enabled = true
+  aliases         = ["api.webbpulse.com"]
+  price_class     = "PriceClass_100"
+
+  origin {
+    domain_name = aws_apprunner_service.backend.service_url
+    origin_id   = "apprunner-backend"
+
+    custom_origin_config {
+      http_port              = 80
+      https_port             = 443
+      origin_protocol_policy = "https-only"
+      origin_ssl_protocols   = ["TLSv1.2"]
+    }
+  }
+
+  default_cache_behavior {
+    target_origin_id       = "apprunner-backend"
+    viewer_protocol_policy = "https-only"
+    allowed_methods        = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cached_methods         = ["GET", "HEAD"]
+
+    forwarded_values {
+      query_string = true
+      headers      = ["Authorization", "Content-Type", "Accept", "Origin"]
+      cookies {
+        forward = "all"
+      }
+    }
+
+    min_ttl     = 0
+    default_ttl = 0
+    max_ttl     = 0
   }
 
   viewer_certificate {
