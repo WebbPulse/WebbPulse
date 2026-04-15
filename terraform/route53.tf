@@ -32,16 +32,24 @@ resource "aws_route53_record" "www" {
 # The second record (api) routes traffic to the App Runner service endpoint.
 # ---------------------------------------------------------------------------
 
-resource "aws_route53_record" "apprunner_cert_validation" {
-  for_each = {
-    for r in aws_apprunner_custom_domain_association.api.certificate_validation_records : r.name => r
-  }
+locals {
+  apprunner_cert_validation_records = tolist(aws_apprunner_custom_domain_association.api.certificate_validation_records)
+}
 
+resource "aws_route53_record" "apprunner_cert_validation_0" {
   zone_id = aws_route53_zone.webbpulse.zone_id
-  name    = each.value.name
-  type    = each.value.type
+  name    = local.apprunner_cert_validation_records[0].name
+  type    = local.apprunner_cert_validation_records[0].type
   ttl     = 300
-  records = [each.value.value]
+  records = [local.apprunner_cert_validation_records[0].value]
+}
+
+resource "aws_route53_record" "apprunner_cert_validation_1" {
+  zone_id = aws_route53_zone.webbpulse.zone_id
+  name    = local.apprunner_cert_validation_records[1].name
+  type    = local.apprunner_cert_validation_records[1].type
+  ttl     = 300
+  records = [local.apprunner_cert_validation_records[1].value]
 }
 
 resource "aws_route53_record" "api" {
