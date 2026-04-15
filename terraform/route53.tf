@@ -1,3 +1,7 @@
+# Registry DS records without Route53 hosted-zone DNSSEC signing cause
+# validating resolvers to SERVFAIL (breaking TXT, e.g. DKIM). Enable signing
+# in the zone before associating delegation signers at the registrar.
+
 # ---------------------------------------------------------------------------
 # Hosted zone
 # ---------------------------------------------------------------------------
