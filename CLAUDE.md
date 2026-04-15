@@ -88,3 +88,4 @@ alembic upgrade head
 ### Test markers (backend)
 
 pytest.ini defines markers: `unit`, `api`, `integration`, `auth`, `admin`. Run a category with `-m unit` etc., or use `python run_tests.py <category>`.
+
