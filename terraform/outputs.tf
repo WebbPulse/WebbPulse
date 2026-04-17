@@ -44,6 +44,6 @@ output "ecr_repository_url" {
 }
 
 output "db_endpoint" {
-  description = "RDS endpoint (host:port) — available within the VPC only"
+  description = "RDS endpoint (host:port) — publicly reachable, SSL required"
   value       = aws_db_instance.main.endpoint
 }

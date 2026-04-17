@@ -91,17 +91,9 @@ resource "aws_iam_role_policy" "apprunner_ssm" {
 }
 
 # ---------------------------------------------------------------------------
-# VPC connector — lets App Runner reach private RDS; NAT handles internet
-# ---------------------------------------------------------------------------
-
-resource "aws_apprunner_vpc_connector" "main" {
-  vpc_connector_name = local.prefix
-  subnets            = [aws_subnet.private_a.id, aws_subnet.private_b.id]
-  security_groups    = [aws_security_group.apprunner_connector.id]
-}
-
-# ---------------------------------------------------------------------------
 # App Runner service
+# App Runner uses default (AWS-managed) egress. It reaches RDS over the
+# public internet via the endpoint's DNS name; auth + SSL secure the link.
 # ---------------------------------------------------------------------------
 
 resource "aws_apprunner_service" "backend" {
@@ -145,10 +137,12 @@ resource "aws_apprunner_service" "backend" {
     instance_role_arn = aws_iam_role.apprunner_instance.arn
   }
 
+  # Explicit DEFAULT egress. Terraform treats this block as computed, so
+  # simply removing it does NOT revert a previously configured VPC egress —
+  # the value must be set explicitly to force the switch away from VPC.
   network_configuration {
     egress_configuration {
-      egress_type       = "VPC"
-      vpc_connector_arn = aws_apprunner_vpc_connector.main.arn
+      egress_type = "DEFAULT"
     }
 
     ingress_configuration {

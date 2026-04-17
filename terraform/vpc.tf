@@ -1,13 +1,12 @@
 # ---------------------------------------------------------------------------
-# VPC — private networking for RDS and App Runner
+# VPC — two public subnets (2 AZs for RDS subnet group requirement).
 #
-# Layout:
-#   public-a  (10.0.0.0/24)  — NAT gateway only
-#   private-a (10.0.1.0/24)  — RDS + App Runner VPC connector
-#   private-b (10.0.2.0/24)  — RDS subnet group requires 2 AZs
+# RDS is publicly accessible but secured by:
+#   - 32-char alphanumeric password (random_password.db, ~190 bits entropy)
+#   - PostgreSQL native auth
+#   - rds.force_ssl = 1 on the DB parameter group (SSL required)
 #
-# App Runner uses egress_type=VPC so all outbound traffic (including
-# SendGrid, etc.) routes through the NAT gateway in the public subnet.
+# App Runner uses default (AWS-managed) egress — no VPC connector, no NAT.
 # ---------------------------------------------------------------------------
 
 resource "aws_vpc" "main" {
@@ -18,74 +17,42 @@ resource "aws_vpc" "main" {
   tags = { Name = local.prefix }
 }
 
+# RDS subnet groups require subnets in at least two AZs.
 resource "aws_subnet" "public_a" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.0.0/24"
-  availability_zone = "${var.aws_region}a"
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.0.0/24"
+  availability_zone       = "${var.aws_region}a"
+  map_public_ip_on_launch = true
 
   tags = { Name = "${local.prefix}-public-a" }
 }
 
-resource "aws_subnet" "private_a" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.1.0/24"
-  availability_zone = "${var.aws_region}a"
+# New CIDR (not 10.0.2.0/24, which belonged to private_b) so terraform can
+# create this before destroying private_b without a range collision.
+resource "aws_subnet" "public_b" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.3.0/24"
+  availability_zone       = "${var.aws_region}b"
+  map_public_ip_on_launch = true
 
-  tags = { Name = "${local.prefix}-private-a" }
+  tags = { Name = "${local.prefix}-public-b" }
 }
-
-resource "aws_subnet" "private_b" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.2.0/24"
-  availability_zone = "${var.aws_region}b"
-
-  tags = { Name = "${local.prefix}-private-b" }
-}
-
-# ---------------------------------------------------------------------------
-# Internet gateway + single NAT gateway (cost-optimised: one AZ only)
-# ---------------------------------------------------------------------------
 
 resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
-  tags   = { Name = local.prefix }
-}
 
-resource "aws_eip" "nat" {
-  domain     = "vpc"
-  depends_on = [aws_internet_gateway.main]
-  tags       = { Name = "${local.prefix}-nat" }
+  tags = { Name = local.prefix }
 }
-
-resource "aws_nat_gateway" "main" {
-  allocation_id = aws_eip.nat.id
-  subnet_id     = aws_subnet.public_a.id
-  depends_on    = [aws_internet_gateway.main]
-  tags          = { Name = local.prefix }
-}
-
-# ---------------------------------------------------------------------------
-# Route tables
-# ---------------------------------------------------------------------------
 
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
-  tags   = { Name = "${local.prefix}-public" }
 
   route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.main.id
   }
-}
 
-resource "aws_route_table" "private" {
-  vpc_id = aws_vpc.main.id
-  tags   = { Name = "${local.prefix}-private" }
-
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.main.id
-  }
+  tags = { Name = "${local.prefix}-public" }
 }
 
 resource "aws_route_table_association" "public_a" {
@@ -93,52 +60,32 @@ resource "aws_route_table_association" "public_a" {
   route_table_id = aws_route_table.public.id
 }
 
-resource "aws_route_table_association" "private_a" {
-  subnet_id      = aws_subnet.private_a.id
-  route_table_id = aws_route_table.private.id
+resource "aws_route_table_association" "public_b" {
+  subnet_id      = aws_subnet.public_b.id
+  route_table_id = aws_route_table.public.id
 }
 
-resource "aws_route_table_association" "private_b" {
-  subnet_id      = aws_subnet.private_b.id
-  route_table_id = aws_route_table.private.id
-}
-
-# ---------------------------------------------------------------------------
-# Security groups
-# ---------------------------------------------------------------------------
-
-resource "aws_security_group" "apprunner_connector" {
-  name        = "${local.prefix}-apprunner-connector"
-  description = "App Runner VPC connector - egress to RDS and internet via NAT"
-  vpc_id      = aws_vpc.main.id
-
-  egress {
-    description = "PostgreSQL to RDS"
-    from_port   = 5432
-    to_port     = 5432
-    protocol    = "tcp"
-    cidr_blocks = [aws_vpc.main.cidr_block]
-  }
-
-  egress {
-    description = "HTTPS outbound (SendGrid, AWS APIs, etc.)"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
+# App Runner egress IPs are AWS-managed and not fixed, so 0.0.0.0/0 is
+# required on the ingress rule. DB auth + rds.force_ssl secure the instance.
 resource "aws_security_group" "rds" {
   name        = "${local.prefix}-rds"
-  description = "RDS PostgreSQL - ingress from App Runner only"
+  description = "Allow PostgreSQL inbound (secured by auth + SSL)"
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    description     = "PostgreSQL from App Runner VPC connector"
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = [aws_security_group.apprunner_connector.id]
+    description = "PostgreSQL"
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = { Name = "${local.prefix}-rds" }
 }

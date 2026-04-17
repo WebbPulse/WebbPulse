@@ -9,7 +9,7 @@ resource "random_password" "db" {
 
 resource "aws_db_subnet_group" "main" {
   name       = local.prefix
-  subnet_ids = [aws_subnet.private_a.id, aws_subnet.private_b.id]
+  subnet_ids = [aws_subnet.public_a.id, aws_subnet.public_b.id]
 }
 
 resource "aws_db_instance" "main" {
@@ -26,10 +26,15 @@ resource "aws_db_instance" "main" {
   storage_type          = "gp3"
   allocated_storage     = 20
   max_allocated_storage = 100
+  storage_encrypted     = true
 
   db_subnet_group_name   = aws_db_subnet_group.main.name
   vpc_security_group_ids = [aws_security_group.rds.id]
-  publicly_accessible    = false
+  publicly_accessible    = true
+
+  # Required so the subnet-group change + publicly_accessible flip are applied
+  # in a single maintenance window instead of waiting. Causes a short reboot.
+  apply_immediately = true
 
   backup_retention_period = 7
   deletion_protection     = false
