@@ -67,3 +67,4 @@ Thumbs.db
 # Claude Code / agent tooling
 # -----------------------------------------------------------------------------
 .claude/
+.playwright-mcp/
