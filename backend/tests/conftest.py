@@ -303,7 +303,7 @@ def test_skill(db_session: Session) -> Skill:
     skill = Skill(
         name="Test Skill",
         category="frontend",
-        proficiency=75,
+        tier="working",
         icon="🧪",
         order=10,
         is_active=True,
@@ -394,7 +394,7 @@ def sample_skill_data() -> dict:
     return {
         "name": "Sample Skill",
         "category": "backend",
-        "proficiency": 80,
+        "tier": "working",
         "icon": "🔧",
         "order": 20,
     }

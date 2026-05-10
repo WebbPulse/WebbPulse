@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '../common';
-import type { Skill, SkillFormData } from './types';
+import type { Skill, SkillFormData, SkillTier } from './types';
 
 interface SkillFormProps {
   form: SkillFormData;
@@ -92,23 +92,22 @@ export const SkillForm: React.FC<SkillFormProps> = ({
             />
           </div>
           <div>
-            <label className={labelClass}>
-              Proficiency: {form.proficiency}%
-            </label>
-            <input
-              type="range"
-              min={0}
-              max={100}
-              step={5}
-              value={form.proficiency}
+            <label className={labelClass}>Tier</label>
+            <select
+              value={form.tier}
               onChange={e =>
                 setForm(prev => ({
                   ...prev,
-                  proficiency: Number(e.target.value),
+                  tier: e.target.value as SkillTier,
                 }))
               }
-              className="w-full"
-            />
+              className={inputClass}
+              required
+            >
+              <option value="core">Core — use daily, deep</option>
+              <option value="working">Working — ship in it comfortably</option>
+              <option value="familiar">Familiar — can read/contribute</option>
+            </select>
           </div>
         </div>
 

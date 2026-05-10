@@ -72,12 +72,13 @@ export interface Category {
 }
 
 export type SkillCategory = 'frontend' | 'backend' | 'devops' | 'other';
+export type SkillTier = 'core' | 'working' | 'familiar';
 
 export interface Skill {
   id: number;
   name: string;
   category: SkillCategory;
-  proficiency: number;
+  tier: SkillTier;
   icon?: string;
   order: number;
   created_at: string;

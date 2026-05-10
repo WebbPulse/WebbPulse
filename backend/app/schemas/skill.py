@@ -1,15 +1,16 @@
 from datetime import datetime
 from typing import Literal, Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 
 SkillCategory = Literal["frontend", "backend", "devops", "other"]
+SkillTier = Literal["core", "working", "familiar"]
 
 
 class SkillBase(BaseModel):
     name: str
     category: SkillCategory
-    proficiency: int = Field(default=50, ge=0, le=100)
+    tier: SkillTier = "working"
     icon: Optional[str] = None
     order: int = 0
 
@@ -21,7 +22,7 @@ class SkillCreate(SkillBase):
 class SkillUpdate(BaseModel):
     name: Optional[str] = None
     category: Optional[SkillCategory] = None
-    proficiency: Optional[int] = Field(default=None, ge=0, le=100)
+    tier: Optional[SkillTier] = None
     icon: Optional[str] = None
     order: Optional[int] = None
     is_active: Optional[bool] = None
@@ -40,7 +41,7 @@ class SkillList(BaseModel):
     id: int
     name: str
     category: SkillCategory
-    proficiency: int
+    tier: SkillTier
     icon: Optional[str] = None
     order: int
     created_at: datetime

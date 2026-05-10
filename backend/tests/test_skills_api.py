@@ -20,7 +20,7 @@ class TestSkillsAPI:
         assert len(data) == 1
         assert data[0]["name"] == "Test Skill"
         assert data[0]["category"] == "frontend"
-        assert data[0]["proficiency"] == 75
+        assert data[0]["tier"] == "working"
 
     @pytest.mark.api
     def test_get_skills_ordering(self, client: TestClient, db_session: Session):
@@ -29,9 +29,9 @@ class TestSkillsAPI:
 
         db_session.add_all(
             [
-                Skill(name="Zeta", category="frontend", proficiency=50, order=10),
-                Skill(name="Alpha", category="frontend", proficiency=50, order=20),
-                Skill(name="Beta", category="frontend", proficiency=50, order=10),
+                Skill(name="Zeta", category="frontend", tier="working", order=10),
+                Skill(name="Alpha", category="frontend", tier="working", order=20),
+                Skill(name="Beta", category="frontend", tier="working", order=10),
             ]
         )
         db_session.commit()
@@ -64,7 +64,7 @@ class TestSkillsAPI:
         inactive = Skill(
             name="Hidden",
             category="frontend",
-            proficiency=50,
+            tier="working",
             order=10,
             is_active=False,
         )
@@ -91,7 +91,7 @@ class TestSkillsAdminAPI:
         data = response.json()
         assert data["name"] == sample_skill_data["name"]
         assert data["category"] == sample_skill_data["category"]
-        assert data["proficiency"] == sample_skill_data["proficiency"]
+        assert data["tier"] == sample_skill_data["tier"]
 
     @pytest.mark.api
     @pytest.mark.auth
@@ -116,26 +116,19 @@ class TestSkillsAdminAPI:
     ):
         response = client.post(
             "/api/v1/skills/",
-            json={"name": "Bad", "category": "nope", "proficiency": 50},
+            json={"name": "Bad", "category": "nope", "tier": "working"},
             headers=admin_auth_headers,
         )
         assert response.status_code == 422
 
     @pytest.mark.api
     @pytest.mark.auth
-    def test_create_skill_proficiency_out_of_range(
+    def test_create_skill_invalid_tier(
         self, client: TestClient, admin_auth_headers
     ):
         response = client.post(
             "/api/v1/skills/",
-            json={"name": "Bad", "category": "frontend", "proficiency": 150},
-            headers=admin_auth_headers,
-        )
-        assert response.status_code == 422
-
-        response = client.post(
-            "/api/v1/skills/",
-            json={"name": "Bad", "category": "frontend", "proficiency": -1},
+            json={"name": "Bad", "category": "frontend", "tier": "expert"},
             headers=admin_auth_headers,
         )
         assert response.status_code == 422
@@ -147,13 +140,13 @@ class TestSkillsAdminAPI:
     ):
         response = client.put(
             f"/api/v1/skills/{test_skill.id}",
-            json={"name": "Renamed", "proficiency": 100},
+            json={"name": "Renamed", "tier": "core"},
             headers=admin_auth_headers,
         )
         assert response.status_code == 200
         data = response.json()
         assert data["name"] == "Renamed"
-        assert data["proficiency"] == 100
+        assert data["tier"] == "core"
         # Untouched field preserved
         assert data["category"] == "frontend"
 
@@ -236,6 +229,6 @@ class TestSkillsAPIValidation:
         assert response.status_code == 200
         data = response.json()
         assert data["name"] == "Minimal"
-        assert data["proficiency"] == 50  # default
+        assert data["tier"] == "working"  # default
         assert data["order"] == 0  # default
         assert data["icon"] is None

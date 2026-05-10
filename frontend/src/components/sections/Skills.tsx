@@ -1,35 +1,31 @@
 import React from 'react';
 import { GradientText } from '../common';
 import { useSkills, useInViewReveal } from '../../hooks';
-import type { Skill, SkillCategory } from '../../services/api';
+import type { Skill, SkillCategory, SkillTier } from '../../services/api';
 
 const CATEGORY_META: Record<
   SkillCategory,
-  { label: string; accent: string; glow: string; bar: string }
+  { label: string; accent: string; glow: string }
 > = {
   frontend: {
     label: 'Frontend',
     accent: 'text-accent-cyan-400',
     glow: 'hover:shadow-glow-cyan',
-    bar: 'from-accent-cyan-500 to-accent-cyan-300',
   },
   backend: {
     label: 'Backend',
     accent: 'text-accent-violet-400',
     glow: 'hover:shadow-glow-violet',
-    bar: 'from-accent-violet-500 to-accent-violet-300',
   },
   devops: {
     label: 'DevOps & Infrastructure',
     accent: 'text-accent-fuchsia-400',
     glow: 'hover:shadow-glow-fuchsia',
-    bar: 'from-accent-fuchsia-500 to-accent-fuchsia-300',
   },
   other: {
     label: 'Other',
     accent: 'text-surface-200',
     glow: 'hover:shadow-glow-soft',
-    bar: 'from-accent-cyan-400 via-accent-violet-400 to-accent-fuchsia-400',
   },
 };
 
@@ -40,11 +36,67 @@ const CATEGORY_ORDER: SkillCategory[] = [
   'other',
 ];
 
+const TIER_META: Record<
+  SkillTier,
+  { label: string; description: string; accent: string }
+> = {
+  core: {
+    label: 'Core',
+    description: 'Use daily, deep knowledge',
+    accent: 'text-accent-cyan-400',
+  },
+  working: {
+    label: 'Working',
+    description: 'Ship in it comfortably',
+    accent: 'text-accent-violet-300',
+  },
+  familiar: {
+    label: 'Familiar',
+    description: 'Can read and contribute',
+    accent: 'text-surface-400',
+  },
+};
+
+const TIER_ORDER: SkillTier[] = ['core', 'working', 'familiar'];
+
+const TierGlyph: React.FC<{ tier: SkillTier; className?: string }> = ({
+  tier,
+  className = '',
+}) => {
+  // Filled / half / outline circle, color-coded
+  const base = 'inline-block w-3 h-3 rounded-full border';
+  if (tier === 'core') {
+    return (
+      <span
+        aria-hidden="true"
+        className={`${base} bg-accent-cyan-400 border-accent-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.6)] ${className}`}
+      />
+    );
+  }
+  if (tier === 'working') {
+    return (
+      <span
+        aria-hidden="true"
+        className={`${base} relative overflow-hidden border-accent-violet-300 ${className}`}
+      >
+        <span className="absolute inset-y-0 left-0 w-1/2 bg-accent-violet-300" />
+      </span>
+    );
+  }
+  return (
+    <span
+      aria-hidden="true"
+      className={`${base} border-surface-400 ${className}`}
+    />
+  );
+};
+
 const SkillCard: React.FC<{ skill: Skill; index: number }> = ({
   skill,
   index,
 }) => {
   const meta = CATEGORY_META[skill.category];
+  const tierMeta = TIER_META[skill.tier];
   const { ref, isInView } = useInViewReveal<HTMLDivElement>({ threshold: 0.2 });
 
   return (
@@ -52,24 +104,22 @@ const SkillCard: React.FC<{ skill: Skill; index: number }> = ({
       ref={ref}
       style={{ animationDelay: `${(index % 8) * 60}ms` }}
       className={`group relative surface-glass rounded-2xl p-5 transition-all duration-500 hover:-translate-y-1 ${meta.glow} ${isInView ? 'animate-fade-in-up' : 'opacity-0'}`}
+      title={`${tierMeta.label} — ${tierMeta.description}`}
     >
       <div className="flex items-start justify-between">
         <span className="text-3xl" aria-hidden="true">
           {skill.icon ?? '💻'}
         </span>
-        <span className={`text-xs font-medium ${meta.accent}`}>
-          {skill.proficiency}%
+        <span
+          className={`flex items-center gap-1.5 text-[11px] uppercase tracking-[0.14em] font-medium ${tierMeta.accent}`}
+        >
+          <TierGlyph tier={skill.tier} />
+          {tierMeta.label}
         </span>
       </div>
       <h4 className="mt-4 font-display font-semibold text-surface-50 text-base">
         {skill.name}
       </h4>
-      <div className="mt-3 h-1 w-full rounded-full bg-surface-800 overflow-hidden">
-        <div
-          className={`h-full rounded-full bg-gradient-to-r ${meta.bar} transition-[width] duration-1000 ease-out`}
-          style={{ width: isInView ? `${skill.proficiency}%` : '0%' }}
-        />
-      </div>
     </div>
   );
 };
@@ -78,10 +128,24 @@ const SkillSkeletonCard: React.FC = () => (
   <div className="surface-glass rounded-2xl p-5 animate-pulse">
     <div className="flex items-center justify-between">
       <div className="w-8 h-8 bg-surface-800 rounded" />
-      <div className="w-8 h-3 bg-surface-800 rounded" />
+      <div className="w-16 h-3 bg-surface-800 rounded" />
     </div>
     <div className="mt-4 h-4 bg-surface-800 rounded w-2/3" />
-    <div className="mt-3 h-1 bg-surface-800 rounded w-full" />
+  </div>
+);
+
+const TierLegend: React.FC = () => (
+  <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-surface-300">
+    {TIER_ORDER.map(t => {
+      const m = TIER_META[t];
+      return (
+        <span key={t} className="flex items-center gap-2">
+          <TierGlyph tier={t} />
+          <span className={`font-medium ${m.accent}`}>{m.label}</span>
+          <span className="text-surface-500">{m.description}</span>
+        </span>
+      );
+    })}
   </div>
 );
 
@@ -109,7 +173,7 @@ export const Skills: React.FC = () => {
         ref={ref}
         className={`relative z-10 max-w-7xl mx-auto px-6 sm:px-8 ${isInView ? 'animate-fade-in' : 'opacity-0'}`}
       >
-        <div className="text-center mb-16 max-w-2xl mx-auto">
+        <div className="text-center mb-10 max-w-2xl mx-auto">
           <span className="inline-block text-xs uppercase tracking-[0.2em] text-accent-violet-400 mb-4">
             Skills
           </span>
@@ -120,6 +184,10 @@ export const Skills: React.FC = () => {
             A snapshot of my current toolkit across frontend, backend, infra,
             and the rest.
           </p>
+        </div>
+
+        <div className="mb-12">
+          <TierLegend />
         </div>
 
         {loading && (

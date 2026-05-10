@@ -67,7 +67,7 @@ const EMPTY_CATEGORY: CategoryFormData = {
 const EMPTY_SKILL: SkillFormData = {
   name: '',
   category: 'frontend',
-  proficiency: 50,
+  tier: 'working',
   icon: '',
   order: 0,
 };
@@ -455,7 +455,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ className = '' }) => {
     setSkillForm({
       name: s.name,
       category: s.category,
-      proficiency: s.proficiency,
+      tier: s.tier,
       icon: s.icon || '',
       order: s.order,
     });
@@ -886,14 +886,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ className = '' }) => {
                           </span>
                         </h3>
                         <div className="flex items-center gap-3 mt-1">
-                          <div className="h-1.5 w-32 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-blue-500"
-                              style={{ width: `${skill.proficiency}%` }}
-                            />
-                          </div>
+                          <span className="text-xs px-2 py-0.5 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-full capitalize">
+                            {skill.tier}
+                          </span>
                           <span className="text-xs text-gray-500 dark:text-gray-400">
-                            {skill.proficiency}% · order {skill.order}
+                            order {skill.order}
                           </span>
                         </div>
                       </div>
