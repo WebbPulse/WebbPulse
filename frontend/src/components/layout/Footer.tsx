@@ -17,8 +17,8 @@ const Footer: React.FC<FooterProps> = ({ socialLinks = [] }) => {
           <div className="space-y-4">
             <h3 className="text-xl font-bold">Tyler Webb</h3>
             <p className="text-gray-400">
-              Full-stack developer passionate about creating innovative web
-              solutions.
+              Software engineer focused on building reliable, privacy-conscious
+              systems.
             </p>
           </div>
 

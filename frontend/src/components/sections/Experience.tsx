@@ -223,7 +223,6 @@ const educationData = [
     period: 'August 2018 - May 2022',
     description:
       'Focused on networking, telecommunications, and information systems. Served as President of the Advanced Technology Student Organization.',
-    gpa: '3.56/4.0',
   },
 ];
 
@@ -237,13 +236,19 @@ const certificationsData = [
   },
   {
     id: '2',
-    name: 'Cisco Certified Network Associate (CCNA)',
+    name: 'CCNA: Switching, Routing, and Wireless Essentials',
     issuer: 'Cisco',
     date: '2022',
   },
   {
     id: '3',
-    name: 'Microsoft Certified Azure Fundamentals',
+    name: 'CCNA: Enterprise Networking, Security, and Automation',
+    issuer: 'Cisco',
+    date: '2022',
+  },
+  {
+    id: '4',
+    name: 'Microsoft Certified: Azure Fundamentals',
     issuer: 'Microsoft',
     date: '2022',
   },

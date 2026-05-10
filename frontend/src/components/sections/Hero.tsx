@@ -11,8 +11,8 @@ interface HeroProps {
 
 const Hero: React.FC<HeroProps> = ({
   title = "Hi, I'm Tyler Webb",
-  subtitle = 'Full-Stack Developer',
-  description = 'I build modern web applications with cutting-edge technologies. Passionate about creating user experiences that make a difference.',
+  subtitle = 'Software Engineer',
+  description = 'Software engineer at Verkada, building privacy-conscious physical security software. Background in network engineering and full-stack web.',
   ctaText = 'View My Work',
   ctaLink = '#projects',
 }) => {

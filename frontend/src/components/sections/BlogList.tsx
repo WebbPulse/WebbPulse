@@ -190,7 +190,6 @@ export const BlogList: React.FC = () => {
               <Button variant="outline">← Back to Home</Button>
             </Link>
           </div>
-
         </div>
       </main>
       <Footer socialLinks={socialLinks} />

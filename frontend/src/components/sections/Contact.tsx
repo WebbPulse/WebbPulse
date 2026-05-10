@@ -29,9 +29,9 @@ export const Contact: React.FC<ContactProps> = ({ className = '' }) => {
                 Let's Connect
               </h3>
               <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed mb-8">
-                I'm always open to discussing new opportunities, interesting
-                projects, or just having a chat about technology and web
-                development.
+                I'm always open to discussing interesting projects, or just
+                having a chat about software engineering, networking, or
+                infrastructure.
               </p>
             </div>
 
@@ -86,8 +86,8 @@ export const Contact: React.FC<ContactProps> = ({ className = '' }) => {
                 Current Availability
               </h4>
               <p className="text-gray-600 dark:text-gray-300">
-                I'm currently available for freelance projects and full-time
-                opportunities.
+                Currently a software engineer at Verkada. Always happy to chat
+                about software, networking, or interesting side projects.
               </p>
             </div>
           </div>

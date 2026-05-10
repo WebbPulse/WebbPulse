@@ -21,8 +21,8 @@ export const About: React.FC<AboutProps> = ({ className = '' }) => {
             About Me
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Full-stack developer passionate about creating innovative web
-            solutions
+            Software engineer focused on building reliable, privacy-conscious
+            systems.
           </p>
         </div>
 
@@ -31,18 +31,17 @@ export const About: React.FC<AboutProps> = ({ className = '' }) => {
           <div className="space-y-6">
             <div className="prose prose-lg dark:prose-invert max-w-none">
               <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
-                Hi, I'm Tyler Webb! I'm a passionate full-stack developer with a
-                love for creating elegant, user-friendly web applications. With
-                expertise in modern technologies like React, TypeScript, and
-                Node.js, I enjoy turning complex problems into simple, beautiful
-                solutions.
+                Hi, I'm Tyler. I'm a software engineer at Verkada, where I work
+                on systems that protect people and property in a
+                privacy-sensitive way. Before moving into engineering full time,
+                I spent ~4 years as a technical and escalation engineer there,
+                and started my career as a network engineer at Midwest Energy.
               </p>
 
               <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
-                When I'm not coding, you can find me exploring new technologies,
-                contributing to open-source projects, or sharing knowledge with
-                the developer community. I believe in writing clean,
-                maintainable code and creating experiences that users love.
+                Outside of work I build personal projects (this site included) —
+                usually full-stack TypeScript and React on the frontend, Python
+                and FastAPI on the backend, deployed on AWS via Terraform.
               </p>
             </div>
 
