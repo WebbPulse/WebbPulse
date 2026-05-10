@@ -6,7 +6,7 @@ import { BlogList } from './components/sections/BlogList';
 import { BlogPost } from './components/sections/BlogPost';
 import './styles/globals.css';
 
-const UNDER_CONSTRUCTION = true;
+const UNDER_CONSTRUCTION = false;
 
 function App() {
   return (
