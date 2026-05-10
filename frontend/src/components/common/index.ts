@@ -1,3 +1,5 @@
 // Common components exports
 export { default as Button } from './Button';
-export { default as Card } from './Card';
+export { default as AnimatedOrb } from './AnimatedOrb';
+export { default as GradientText } from './GradientText';
+export { default as GradientPanel } from './GradientPanel';

@@ -9,7 +9,7 @@ import {
   Blog,
   Contact,
 } from '../components/sections';
-import type { NavigationItem, SocialLink } from '../types';
+import type { NavigationItem } from '../types';
 
 const Home: React.FC = () => {
   const navigationItems: NavigationItem[] = [
@@ -21,21 +21,8 @@ const Home: React.FC = () => {
     { label: 'Contact', href: '#contact' },
   ];
 
-  const socialLinks: SocialLink[] = [
-    {
-      platform: 'GitHub',
-      url: 'https://github.com/Tylert2610',
-      icon: 'github',
-    },
-    {
-      platform: 'LinkedIn',
-      url: 'https://www.linkedin.com/in/tylert2610/',
-      icon: 'linkedin',
-    },
-  ];
-
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
+    <div className="min-h-screen">
       <Header navigationItems={navigationItems} />
       <main>
         <Hero />
@@ -46,7 +33,7 @@ const Home: React.FC = () => {
         <Blog />
         <Contact />
       </main>
-      <Footer socialLinks={socialLinks} />
+      <Footer />
     </div>
   );
 };

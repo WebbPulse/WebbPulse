@@ -71,6 +71,64 @@ export interface Category {
   description?: string;
 }
 
+export type SkillCategory = 'frontend' | 'backend' | 'devops' | 'other';
+
+export interface Skill {
+  id: number;
+  name: string;
+  category: SkillCategory;
+  proficiency: number;
+  icon?: string;
+  order: number;
+  created_at: string;
+}
+
+export interface Education {
+  id: number;
+  degree: string;
+  school: string;
+  location: string;
+  period: string;
+  start_date: string;
+  end_date?: string | null;
+  description?: string | null;
+  order: number;
+  created_at: string;
+}
+
+export interface Certification {
+  id: number;
+  name: string;
+  issuer: string;
+  issued_date: string;
+  credential_url?: string | null;
+  order: number;
+  created_at: string;
+}
+
+export interface AboutValue {
+  title: string;
+  description: string;
+  icon?: string | null;
+}
+
+export interface SiteContent {
+  id: number;
+  hero_title: string;
+  hero_subtitle: string;
+  hero_description: string;
+  about_paragraphs: string[];
+  about_values: AboutValue[];
+  profile_image_url?: string | null;
+  resume_url?: string | null;
+  email?: string | null;
+  github_url?: string | null;
+  linkedin_url?: string | null;
+  footer_tagline?: string | null;
+  created_at: string;
+  updated_at?: string | null;
+}
+
 export interface UserLogin {
   username: string;
   password: string;
@@ -313,6 +371,112 @@ class ApiService {
   async deleteCategory(id: number): Promise<ApiResponse<{ message: string }>> {
     return this.request<{ message: string }>(`/posts/categories/${id}`, {
       method: 'DELETE',
+    });
+  }
+
+  // Skills API
+  async getSkills(): Promise<ApiResponse<Skill[]>> {
+    return this.request<Skill[]>('/skills/');
+  }
+
+  async createSkill(
+    skill: Omit<Skill, 'id' | 'created_at'>
+  ): Promise<ApiResponse<Skill>> {
+    return this.request<Skill>('/skills/', {
+      method: 'POST',
+      body: JSON.stringify(skill),
+    });
+  }
+
+  async updateSkill(
+    id: number,
+    skill: Partial<Skill>
+  ): Promise<ApiResponse<Skill>> {
+    return this.request<Skill>(`/skills/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(skill),
+    });
+  }
+
+  async deleteSkill(id: number): Promise<ApiResponse<{ message: string }>> {
+    return this.request<{ message: string }>(`/skills/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Education API
+  async getEducation(): Promise<ApiResponse<Education[]>> {
+    return this.request<Education[]>('/education/');
+  }
+
+  async createEducation(
+    entry: Omit<Education, 'id' | 'created_at'>
+  ): Promise<ApiResponse<Education>> {
+    return this.request<Education>('/education/', {
+      method: 'POST',
+      body: JSON.stringify(entry),
+    });
+  }
+
+  async updateEducation(
+    id: number,
+    entry: Partial<Education>
+  ): Promise<ApiResponse<Education>> {
+    return this.request<Education>(`/education/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(entry),
+    });
+  }
+
+  async deleteEducation(id: number): Promise<ApiResponse<{ message: string }>> {
+    return this.request<{ message: string }>(`/education/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Certifications API
+  async getCertifications(): Promise<ApiResponse<Certification[]>> {
+    return this.request<Certification[]>('/certifications/');
+  }
+
+  async createCertification(
+    entry: Omit<Certification, 'id' | 'created_at'>
+  ): Promise<ApiResponse<Certification>> {
+    return this.request<Certification>('/certifications/', {
+      method: 'POST',
+      body: JSON.stringify(entry),
+    });
+  }
+
+  async updateCertification(
+    id: number,
+    entry: Partial<Certification>
+  ): Promise<ApiResponse<Certification>> {
+    return this.request<Certification>(`/certifications/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(entry),
+    });
+  }
+
+  async deleteCertification(
+    id: number
+  ): Promise<ApiResponse<{ message: string }>> {
+    return this.request<{ message: string }>(`/certifications/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Site Content API (singleton)
+  async getSiteContent(): Promise<ApiResponse<SiteContent>> {
+    return this.request<SiteContent>('/site-content/');
+  }
+
+  async updateSiteContent(
+    patch: Partial<SiteContent>
+  ): Promise<ApiResponse<SiteContent>> {
+    return this.request<SiteContent>('/site-content/', {
+      method: 'PUT',
+      body: JSON.stringify(patch),
     });
   }
 }

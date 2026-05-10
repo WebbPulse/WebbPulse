@@ -1,6 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { apiService } from '../services/api';
-import type { Project, Experience } from '../services/api';
+import type {
+  Project,
+  Experience,
+  Skill,
+  Education,
+  Certification,
+  SiteContent,
+} from '../services/api';
 
 interface UseApiDataState<T> {
   data: T | null;
@@ -128,6 +135,106 @@ export function useProject(id: number): UseApiDataReturn<Project> {
     ...state,
     refetch: fetchProject,
   };
+}
+
+// Hook for fetching skills
+export function useSkills(): UseApiDataReturn<Skill[]> {
+  const [state, setState] = useState<UseApiDataState<Skill[]>>({
+    data: null,
+    loading: true,
+    error: null,
+  });
+
+  const fetchSkills = useCallback(async () => {
+    setState(prev => ({ ...prev, loading: true, error: null }));
+    const response = await apiService.getSkills();
+    if (response.error) {
+      setState({ data: null, loading: false, error: response.error });
+    } else {
+      setState({ data: response.data, loading: false, error: null });
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchSkills();
+  }, [fetchSkills]);
+
+  return { ...state, refetch: fetchSkills };
+}
+
+// Hook for fetching education
+export function useEducation(): UseApiDataReturn<Education[]> {
+  const [state, setState] = useState<UseApiDataState<Education[]>>({
+    data: null,
+    loading: true,
+    error: null,
+  });
+
+  const fetchEducation = useCallback(async () => {
+    setState(prev => ({ ...prev, loading: true, error: null }));
+    const response = await apiService.getEducation();
+    if (response.error) {
+      setState({ data: null, loading: false, error: response.error });
+    } else {
+      setState({ data: response.data, loading: false, error: null });
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchEducation();
+  }, [fetchEducation]);
+
+  return { ...state, refetch: fetchEducation };
+}
+
+// Hook for fetching certifications
+export function useCertifications(): UseApiDataReturn<Certification[]> {
+  const [state, setState] = useState<UseApiDataState<Certification[]>>({
+    data: null,
+    loading: true,
+    error: null,
+  });
+
+  const fetchCerts = useCallback(async () => {
+    setState(prev => ({ ...prev, loading: true, error: null }));
+    const response = await apiService.getCertifications();
+    if (response.error) {
+      setState({ data: null, loading: false, error: response.error });
+    } else {
+      setState({ data: response.data, loading: false, error: null });
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCerts();
+  }, [fetchCerts]);
+
+  return { ...state, refetch: fetchCerts };
+}
+
+// Hook for fetching site content (singleton)
+export function useSiteContent(): UseApiDataReturn<SiteContent> {
+  const [state, setState] = useState<UseApiDataState<SiteContent>>({
+    data: null,
+    loading: true,
+    error: null,
+  });
+
+  const fetchSiteContent = useCallback(async () => {
+    setState(prev => ({ ...prev, loading: true, error: null }));
+    const response = await apiService.getSiteContent();
+    if (response.error) {
+      setState({ data: null, loading: false, error: response.error });
+    } else {
+      setState({ data: response.data, loading: false, error: null });
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchSiteContent();
+  }, [fetchSiteContent]);
+
+  return { ...state, refetch: fetchSiteContent };
 }
 
 // Hook for fetching a single experience entry

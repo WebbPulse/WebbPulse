@@ -1,10 +1,76 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Header, Footer } from '../layout';
-import { Card, Button } from '../common';
+import { GradientText } from '../common';
 import { apiService } from '../../services/api';
+import { useInViewReveal } from '../../hooks';
 import type { BlogPost } from '../../services/api';
-import type { NavigationItem, SocialLink } from '../../types';
+import type { NavigationItem } from '../../types';
+
+const NAV: NavigationItem[] = [
+  { label: 'Home', href: '/' },
+  { label: 'About', href: '/#about' },
+  { label: 'Skills', href: '/#skills' },
+  { label: 'Projects', href: '/#projects' },
+  { label: 'Experience', href: '/#experience' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'Contact', href: '/#contact' },
+];
+
+const formatDate = (iso?: string): string =>
+  iso
+    ? new Date(iso).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      })
+    : '';
+
+const BlogPostCard: React.FC<{ post: BlogPost; index: number }> = ({
+  post,
+  index,
+}) => {
+  const { ref, isInView } = useInViewReveal<HTMLDivElement>({
+    threshold: 0.15,
+  });
+  return (
+    <Link
+      to={`/blog/${post.slug}`}
+      ref={ref as React.Ref<HTMLAnchorElement>}
+      style={{ animationDelay: `${(index % 9) * 60}ms` }}
+      className={`group surface-glass surface-glass-hover rounded-2xl p-6 flex flex-col h-full transition-all duration-500 hover:-translate-y-1 hover:shadow-glow-soft ${isInView ? 'animate-fade-in-up' : 'opacity-0'}`}
+    >
+      <div className="flex items-center justify-between mb-4">
+        {post.category && (
+          <span className="px-2.5 py-0.5 text-xs rounded-full bg-gradient-to-r from-accent-violet-500/20 to-accent-fuchsia-500/20 border border-accent-violet-500/30 text-surface-100">
+            {post.category.name}
+          </span>
+        )}
+        {post.read_time && (
+          <span className="text-xs text-surface-400 uppercase tracking-[0.16em]">
+            {post.read_time}
+          </span>
+        )}
+      </div>
+      <h3 className="font-display text-lg font-semibold text-surface-50 mb-2 leading-snug group-hover:text-gradient transition-colors">
+        {post.title}
+      </h3>
+      {post.excerpt && (
+        <p className="text-surface-300 text-sm leading-relaxed mb-4 flex-1">
+          {post.excerpt}
+        </p>
+      )}
+      <div className="mt-auto flex items-center justify-between text-sm">
+        <span className="text-surface-400 text-xs">
+          {formatDate(post.published_at)}
+        </span>
+        <span className="text-accent-cyan-400 text-xs group-hover:translate-x-1 transition-transform">
+          Read →
+        </span>
+      </div>
+    </Link>
+  );
+};
 
 export const BlogList: React.FC = () => {
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
@@ -15,227 +81,130 @@ export const BlogList: React.FC = () => {
     { id: number; name: string; slug: string }[]
   >([]);
 
-  const navigationItems: NavigationItem[] = [
-    { label: 'Home', href: '/' },
-    { label: 'About', href: '/#about' },
-    { label: 'Skills', href: '/#skills' },
-    { label: 'Projects', href: '/#projects' },
-    { label: 'Experience', href: '/#experience' },
-    { label: 'Blog', href: '/blog' },
-    { label: 'Contact', href: '/#contact' },
-  ];
-
-  const socialLinks: SocialLink[] = [
-    {
-      platform: 'GitHub',
-      url: 'https://github.com/Tylert2610',
-      icon: 'github',
-    },
-    {
-      platform: 'LinkedIn',
-      url: 'https://www.linkedin.com/in/tylert2610/',
-      icon: 'linkedin',
-    },
-  ];
-
   useEffect(() => {
-    const fetchData = async () => {
+    let cancelled = false;
+    (async () => {
       setLoading(true);
       setError(null);
-
-      try {
-        const [postsResponse, categoriesResponse] = await Promise.all([
-          apiService.getBlogPosts(),
-          apiService.getCategories(),
-        ]);
-
-        if (postsResponse.error) {
-          setError(postsResponse.error);
-        } else {
-          setBlogPosts(postsResponse.data || []);
-        }
-
-        if (categoriesResponse.error) {
-          console.error('Failed to load categories:', categoriesResponse.error);
-        } else {
-          setCategories(categoriesResponse.data || []);
-        }
-      } catch {
-        setError('Failed to load blog posts');
-      } finally {
-        setLoading(false);
-      }
+      const [postsResponse, categoriesResponse] = await Promise.all([
+        apiService.getBlogPosts(),
+        apiService.getCategories(),
+      ]);
+      if (cancelled) return;
+      if (postsResponse.error) setError(postsResponse.error);
+      else setBlogPosts(postsResponse.data || []);
+      if (!categoriesResponse.error)
+        setCategories(categoriesResponse.data || []);
+      setLoading(false);
+    })();
+    return () => {
+      cancelled = true;
     };
-
-    fetchData();
   }, []);
 
-  const filteredPosts = selectedCategory
-    ? blogPosts.filter(post => post.category?.slug === selectedCategory)
+  const filtered = selectedCategory
+    ? blogPosts.filter(p => p.category?.slug === selectedCategory)
     : blogPosts;
-
-  const publishedPosts = filteredPosts.filter(post => post.published_at);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-white dark:bg-gray-900">
-        <Header navigationItems={navigationItems} />
-        <main className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <p className="text-gray-600 dark:text-gray-300">
-              Loading blog posts...
-            </p>
-          </div>
-        </main>
-        <Footer socialLinks={socialLinks} />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-white dark:bg-gray-900">
-        <Header navigationItems={navigationItems} />
-        <main className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-              Error Loading Blog Posts
-            </h1>
-            <p className="text-gray-600 dark:text-gray-300 mb-6">{error}</p>
-            <Button variant="outline" onClick={() => window.location.reload()}>
-              Try Again
-            </Button>
-          </div>
-        </main>
-        <Footer socialLinks={socialLinks} />
-      </div>
-    );
-  }
+  const published = filtered.filter(p => p.published_at);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
-      <Header navigationItems={navigationItems} />
-      <main className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Header */}
-          <div className="text-center mb-16">
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Blog & Articles
+    <div className="min-h-screen">
+      <Header navigationItems={NAV} />
+      <main className="relative py-20 sm:py-28 overflow-hidden">
+        <div className="absolute inset-0 bg-mesh-1 opacity-40 pointer-events-none" />
+        <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8">
+          <div className="text-center mb-12 max-w-2xl mx-auto">
+            <span className="inline-block text-xs uppercase tracking-[0.2em] text-accent-violet-400 mb-4">
+              Writing
+            </span>
+            <h1 className="font-display text-4xl sm:text-5xl font-bold text-surface-50 mb-4">
+              Blog & <GradientText as="span">articles</GradientText>
             </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              Thoughts on web development, technology trends, and best practices
+            <p className="text-surface-300 text-lg">
+              Thoughts on engineering, infrastructure, and adjacent topics.
             </p>
           </div>
 
-          {/* Category Filter */}
           {categories.length > 0 && (
-            <div className="mb-12">
-              <div className="flex flex-wrap justify-center gap-4">
-                <button
-                  onClick={() => setSelectedCategory(null)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                    selectedCategory === null
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-                  }`}
-                >
-                  All Posts
-                </button>
-                {categories.map(category => (
+            <div className="flex flex-wrap justify-center gap-2 mb-12">
+              <button
+                type="button"
+                onClick={() => setSelectedCategory(null)}
+                className={`px-4 py-1.5 text-sm rounded-full transition-all duration-300 ${
+                  selectedCategory === null
+                    ? 'bg-gradient-accent text-surface-50 shadow-glow-violet'
+                    : 'surface-glass text-surface-300 hover:text-surface-50'
+                }`}
+                style={
+                  selectedCategory === null
+                    ? { backgroundSize: '200% 200%' }
+                    : undefined
+                }
+              >
+                All
+              </button>
+              {categories.map(c => {
+                const active = selectedCategory === c.slug;
+                return (
                   <button
-                    key={category.id}
-                    onClick={() => setSelectedCategory(category.slug)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                      selectedCategory === category.slug
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                    key={c.id}
+                    type="button"
+                    onClick={() => setSelectedCategory(c.slug)}
+                    className={`px-4 py-1.5 text-sm rounded-full transition-all duration-300 ${
+                      active
+                        ? 'bg-gradient-accent text-surface-50 shadow-glow-violet'
+                        : 'surface-glass text-surface-300 hover:text-surface-50'
                     }`}
+                    style={active ? { backgroundSize: '200% 200%' } : undefined}
                   >
-                    {category.name}
+                    {c.name}
                   </button>
-                ))}
-              </div>
+                );
+              })}
             </div>
           )}
 
-          {/* Blog Posts Grid */}
-          {publishedPosts.length > 0 ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {publishedPosts.map(post => (
-                <BlogPostCard key={post.id} post={post} />
+          {loading && (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="h-48 surface-glass rounded-2xl animate-pulse"
+                />
               ))}
             </div>
-          ) : (
-            <div className="text-center py-12">
-              <p className="text-gray-600 dark:text-gray-300 mb-4">
-                {selectedCategory
-                  ? `No blog posts found in the "${categories.find(c => c.slug === selectedCategory)?.name}" category.`
-                  : 'No blog posts available yet. Check back soon!'}
-              </p>
-              {selectedCategory && (
-                <Button
-                  variant="outline"
-                  onClick={() => setSelectedCategory(null)}
-                >
-                  View All Posts
-                </Button>
-              )}
+          )}
+          {error && !loading && (
+            <p className="text-center text-surface-400">
+              Couldn't load posts right now.
+            </p>
+          )}
+          {!loading && !error && published.length === 0 && (
+            <p className="text-center text-surface-400">
+              {selectedCategory
+                ? 'No posts in this category yet.'
+                : 'No posts yet — check back soon.'}
+            </p>
+          )}
+          {!loading && !error && published.length > 0 && (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {published.map((post, i) => (
+                <BlogPostCard key={post.id} post={post} index={i} />
+              ))}
             </div>
           )}
 
-          {/* Back to Home */}
           <div className="text-center mt-16">
-            <Link to="/">
-              <Button variant="outline">← Back to Home</Button>
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full surface-glass surface-glass-hover text-surface-100"
+            >
+              ← Back to home
             </Link>
           </div>
         </div>
       </main>
-      <Footer socialLinks={socialLinks} />
+      <Footer />
     </div>
-  );
-};
-
-const BlogPostCard: React.FC<{ post: BlogPost }> = ({ post }) => {
-  return (
-    <Card
-      title={post.title}
-      description={post.excerpt || ''}
-      image=""
-      category={post.category?.name || ''}
-      placeholderType="blog"
-      className="h-full hover:shadow-lg transition-shadow duration-300"
-    >
-      <div className="space-y-4">
-        <div className="flex items-center justify-between text-sm">
-          {post.category && (
-            <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full">
-              {post.category.name}
-            </span>
-          )}
-          {post.read_time && (
-            <span className="text-gray-500 dark:text-gray-400">
-              {post.read_time}
-            </span>
-          )}
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-500 dark:text-gray-400">
-            {post.published_at &&
-              new Date(post.published_at).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-              })}
-          </span>
-          <Link to={`/blog/${post.slug}`}>
-            <Button variant="ghost" size="sm">
-              Read More →
-            </Button>
-          </Link>
-        </div>
-      </div>
-    </Card>
   );
 };

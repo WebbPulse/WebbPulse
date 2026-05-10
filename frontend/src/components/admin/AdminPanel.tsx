@@ -6,6 +6,10 @@ import { ProjectForm } from './ProjectForm';
 import { ExperienceForm } from './ExperienceForm';
 import { BlogPostForm } from './BlogPostForm';
 import { CategoryForm } from './CategoryForm';
+import { SkillForm } from './SkillForm';
+import { EducationForm } from './EducationForm';
+import { CertificationForm } from './CertificationForm';
+import { SiteContentForm } from './SiteContentForm';
 import type {
   AdminPanelProps,
   AdminTab,
@@ -13,146 +17,254 @@ import type {
   Experience,
   BlogPost,
   Category,
+  Skill,
+  Education,
+  Certification,
   ProjectFormData,
   ExperienceFormData,
   BlogPostFormData,
   CategoryFormData,
+  SkillFormData,
+  EducationFormData,
+  CertificationFormData,
+  SiteContentFormData,
 } from './types';
 
+const EMPTY_PROJECT: ProjectFormData = {
+  title: '',
+  description: '',
+  image: '',
+  technologies: [],
+  github_url: '',
+  live_url: '',
+  featured: false,
+};
+const EMPTY_EXPERIENCE: ExperienceFormData = {
+  title: '',
+  company: '',
+  location: '',
+  period: '',
+  start_date: '',
+  end_date: '',
+  description: '',
+  technologies: [],
+  achievements: [],
+};
+const EMPTY_BLOG: BlogPostFormData = {
+  title: '',
+  slug: '',
+  content: '',
+  excerpt: '',
+  read_time: '',
+  category_id: undefined,
+  published_at: undefined,
+};
+const EMPTY_CATEGORY: CategoryFormData = {
+  name: '',
+  slug: '',
+  description: '',
+};
+const EMPTY_SKILL: SkillFormData = {
+  name: '',
+  category: 'frontend',
+  proficiency: 50,
+  icon: '',
+  order: 0,
+};
+const EMPTY_EDUCATION: EducationFormData = {
+  degree: '',
+  school: '',
+  location: '',
+  period: '',
+  start_date: '',
+  end_date: '',
+  description: '',
+  order: 0,
+};
+const EMPTY_CERTIFICATION: CertificationFormData = {
+  name: '',
+  issuer: '',
+  issued_date: '',
+  credential_url: '',
+  order: 0,
+};
+const EMPTY_SITE_CONTENT: SiteContentFormData = {
+  hero_title: '',
+  hero_subtitle: '',
+  hero_description: '',
+  about_paragraphs: [],
+  about_values: [],
+  profile_image_url: '',
+  resume_url: '',
+  email: '',
+  github_url: '',
+  linkedin_url: '',
+  footer_tagline: '',
+};
+
+const TABS: { id: AdminTab; label: string }[] = [
+  { id: 'site-content', label: 'Site Content' },
+  { id: 'projects', label: 'Projects' },
+  { id: 'experience', label: 'Experience' },
+  { id: 'skills', label: 'Skills' },
+  { id: 'education', label: 'Education' },
+  { id: 'certifications', label: 'Certifications' },
+  { id: 'blog', label: 'Blog Posts' },
+  { id: 'categories', label: 'Categories' },
+];
+
 export const AdminPanel: React.FC<AdminPanelProps> = ({ className = '' }) => {
-  const [activeTab, setActiveTab] = useState<AdminTab>('projects');
+  const [activeTab, setActiveTab] = useState<AdminTab>('site-content');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Projects state
+  // Projects
   const [projects, setProjects] = useState<Project[]>([]);
   const [showProjectForm, setShowProjectForm] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
-  const [projectForm, setProjectForm] = useState<ProjectFormData>({
-    title: '',
-    description: '',
-    image: '',
-    technologies: [],
-    github_url: '',
-    live_url: '',
-    featured: false,
-  });
+  const [projectForm, setProjectForm] =
+    useState<ProjectFormData>(EMPTY_PROJECT);
 
-  // Experience state
+  // Experience
   const [experience, setExperience] = useState<Experience[]>([]);
   const [showExperienceForm, setShowExperienceForm] = useState(false);
   const [editingExperience, setEditingExperience] = useState<Experience | null>(
     null
   );
-  const [experienceForm, setExperienceForm] = useState<ExperienceFormData>({
-    title: '',
-    company: '',
-    location: '',
-    period: '',
-    start_date: '',
-    end_date: '',
-    description: '',
-    technologies: [],
-    achievements: [],
-  });
+  const [experienceForm, setExperienceForm] =
+    useState<ExperienceFormData>(EMPTY_EXPERIENCE);
 
-  // Blog posts state
+  // Blog
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [showBlogPostForm, setShowBlogPostForm] = useState(false);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
-  const [blogPostForm, setBlogPostForm] = useState<BlogPostFormData>({
-    title: '',
-    slug: '',
-    content: '',
-    excerpt: '',
-    read_time: '',
-    category_id: undefined,
-    published_at: undefined,
-  });
+  const [blogPostForm, setBlogPostForm] =
+    useState<BlogPostFormData>(EMPTY_BLOG);
 
-  // Categories state
+  // Categories
   const [categories, setCategories] = useState<Category[]>([]);
   const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [categoryForm, setCategoryForm] = useState<CategoryFormData>({
-    name: '',
-    slug: '',
-    description: '',
-  });
+  const [categoryForm, setCategoryForm] =
+    useState<CategoryFormData>(EMPTY_CATEGORY);
 
-  // Check for existing authentication on mount
+  // Skills
+  const [skills, setSkills] = useState<Skill[]>([]);
+  const [showSkillForm, setShowSkillForm] = useState(false);
+  const [editingSkill, setEditingSkill] = useState<Skill | null>(null);
+  const [skillForm, setSkillForm] = useState<SkillFormData>(EMPTY_SKILL);
+
+  // Education
+  const [education, setEducation] = useState<Education[]>([]);
+  const [showEducationForm, setShowEducationForm] = useState(false);
+  const [editingEducation, setEditingEducation] = useState<Education | null>(
+    null
+  );
+  const [educationForm, setEducationForm] =
+    useState<EducationFormData>(EMPTY_EDUCATION);
+
+  // Certifications
+  const [certifications, setCertifications] = useState<Certification[]>([]);
+  const [showCertForm, setShowCertForm] = useState(false);
+  const [editingCert, setEditingCert] = useState<Certification | null>(null);
+  const [certForm, setCertForm] =
+    useState<CertificationFormData>(EMPTY_CERTIFICATION);
+
+  // Site Content
+  const [siteContentForm, setSiteContentForm] =
+    useState<SiteContentFormData>(EMPTY_SITE_CONTENT);
+
   useEffect(() => {
-    if (apiService.isAuthenticated()) {
-      setIsAuthenticated(true);
-    }
+    if (apiService.isAuthenticated()) setIsAuthenticated(true);
   }, []);
 
-  // Load data
   useEffect(() => {
-    if (isAuthenticated) {
-      loadProjects();
-      loadExperience();
-      loadBlogPosts();
-      loadCategories();
-    }
+    if (!isAuthenticated) return;
+    loadProjects();
+    loadExperience();
+    loadBlogPosts();
+    loadCategories();
+    loadSkills();
+    loadEducation();
+    loadCertifications();
+    loadSiteContent();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
+  const handleApiError = (label: string, msg: string) =>
+    setError(`Failed to ${label}: ${msg}`);
+
+  // Loaders
   const loadProjects = async () => {
-    setLoading(true);
-    const response = await apiService.getProjects();
-    if (response.error) {
-      setError(`Failed to load projects: ${response.error}`);
-    } else {
-      setProjects(response.data || []);
-    }
-    setLoading(false);
+    const r = await apiService.getProjects();
+    if (r.error) handleApiError('load projects', r.error);
+    else setProjects(r.data || []);
   };
-
   const loadExperience = async () => {
-    setLoading(true);
-    const response = await apiService.getExperience();
-    if (response.error) {
-      setError(`Failed to load experience: ${response.error}`);
-    } else {
-      setExperience(response.data || []);
-    }
-    setLoading(false);
+    const r = await apiService.getExperience();
+    if (r.error) handleApiError('load experience', r.error);
+    else setExperience(r.data || []);
   };
-
   const loadBlogPosts = async () => {
-    setLoading(true);
-    const response = await apiService.getAdminBlogPosts();
-    if (response.error) {
-      setError(`Failed to load blog posts: ${response.error}`);
-    } else {
-      setBlogPosts(response.data || []);
-    }
-    setLoading(false);
+    const r = await apiService.getAdminBlogPosts();
+    if (r.error) handleApiError('load blog posts', r.error);
+    else setBlogPosts(r.data || []);
   };
-
   const loadCategories = async () => {
-    setLoading(true);
-    const response = await apiService.getCategories();
-    if (response.error) {
-      setError(`Failed to load categories: ${response.error}`);
-    } else {
-      setCategories(response.data || []);
+    const r = await apiService.getCategories();
+    if (r.error) handleApiError('load categories', r.error);
+    else setCategories(r.data || []);
+  };
+  const loadSkills = async () => {
+    const r = await apiService.getSkills();
+    if (r.error) handleApiError('load skills', r.error);
+    else setSkills(r.data || []);
+  };
+  const loadEducation = async () => {
+    const r = await apiService.getEducation();
+    if (r.error) handleApiError('load education', r.error);
+    else setEducation(r.data || []);
+  };
+  const loadCertifications = async () => {
+    const r = await apiService.getCertifications();
+    if (r.error) handleApiError('load certifications', r.error);
+    else setCertifications(r.data || []);
+  };
+  const loadSiteContent = async () => {
+    const r = await apiService.getSiteContent();
+    if (r.error) {
+      handleApiError('load site content', r.error);
+      return;
     }
-    setLoading(false);
+    if (r.data) {
+      setSiteContentForm({
+        hero_title: r.data.hero_title || '',
+        hero_subtitle: r.data.hero_subtitle || '',
+        hero_description: r.data.hero_description || '',
+        about_paragraphs: r.data.about_paragraphs || [],
+        about_values: (r.data.about_values || []).map(v => ({
+          title: v.title,
+          description: v.description,
+          icon: v.icon || '',
+        })),
+        profile_image_url: r.data.profile_image_url || '',
+        resume_url: r.data.resume_url || '',
+        email: r.data.email || '',
+        github_url: r.data.github_url || '',
+        linkedin_url: r.data.linkedin_url || '',
+        footer_tagline: r.data.footer_tagline || '',
+      });
+    }
   };
 
   const handleLogin = async (username: string, password: string) => {
     setLoading(true);
     setError(null);
-
     try {
-      const response = await apiService.login({ username, password });
-      if (response.error) {
-        setError(response.error);
-      } else {
-        setIsAuthenticated(true);
-      }
+      const r = await apiService.login({ username, password });
+      if (r.error) setError(r.error);
+      else setIsAuthenticated(true);
     } catch {
       setError('Login failed');
     } finally {
@@ -160,130 +272,62 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ className = '' }) => {
     }
   };
 
-  // Project CRUD operations
+  // Project CRUD
   const handleProjectSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
-    try {
-      if (editingProject) {
-        // Update project
-        const response = await apiService.updateProject(
-          editingProject.id,
-          projectForm
-        );
-        if (response.error) {
-          setError(`Failed to update project: ${response.error}`);
-        } else {
-          await loadProjects();
-          setShowProjectForm(false);
-          setEditingProject(null);
-          resetProjectForm();
-        }
-      } else {
-        // Create project
-        const response = await apiService.createProject(projectForm);
-        if (response.error) {
-          setError(`Failed to create project: ${response.error}`);
-        } else {
-          await loadProjects();
-          setShowProjectForm(false);
-          resetProjectForm();
-        }
-      }
-    } catch {
-      setError('Operation failed');
-    } finally {
-      setLoading(false);
+    const r = editingProject
+      ? await apiService.updateProject(editingProject.id, projectForm)
+      : await apiService.createProject(projectForm);
+    if (r.error) handleApiError('save project', r.error);
+    else {
+      await loadProjects();
+      setShowProjectForm(false);
+      setEditingProject(null);
+      setProjectForm(EMPTY_PROJECT);
     }
+    setLoading(false);
   };
-
-  const handleProjectEdit = (project: Project) => {
-    setEditingProject(project);
+  const handleProjectEdit = (p: Project) => {
+    setEditingProject(p);
     setProjectForm({
-      title: project.title,
-      description: project.description,
-      image: project.image || '',
-      technologies: project.technologies,
-      github_url: project.github_url || '',
-      live_url: project.live_url || '',
-      featured: project.featured,
+      title: p.title,
+      description: p.description,
+      image: p.image || '',
+      technologies: p.technologies,
+      github_url: p.github_url || '',
+      live_url: p.live_url || '',
+      featured: p.featured,
     });
     setShowProjectForm(true);
   };
-
   const handleProjectDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this project?')) return;
-
+    if (!confirm('Delete this project?')) return;
     setLoading(true);
-    setError(null);
-
-    try {
-      const response = await apiService.deleteProject(id);
-      if (response.error) {
-        setError(`Failed to delete project: ${response.error}`);
-      } else {
-        await loadProjects();
-      }
-    } catch {
-      setError('Delete failed');
-    } finally {
-      setLoading(false);
-    }
+    const r = await apiService.deleteProject(id);
+    if (r.error) handleApiError('delete project', r.error);
+    else await loadProjects();
+    setLoading(false);
   };
 
-  const resetProjectForm = () => {
-    setProjectForm({
-      title: '',
-      description: '',
-      image: '',
-      technologies: [],
-      github_url: '',
-      live_url: '',
-      featured: false,
-    });
-  };
-
-  // Experience CRUD operations
+  // Experience CRUD
   const handleExperienceSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
-    try {
-      if (editingExperience) {
-        // Update experience
-        const response = await apiService.updateExperience(
-          editingExperience.id,
-          experienceForm
-        );
-        if (response.error) {
-          setError(`Failed to update experience: ${response.error}`);
-        } else {
-          await loadExperience();
-          setShowExperienceForm(false);
-          setEditingExperience(null);
-          resetExperienceForm();
-        }
-      } else {
-        // Create experience
-        const response = await apiService.createExperience(experienceForm);
-        if (response.error) {
-          setError(`Failed to create experience: ${response.error}`);
-        } else {
-          await loadExperience();
-          setShowExperienceForm(false);
-          resetExperienceForm();
-        }
-      }
-    } catch {
-      setError('Operation failed');
-    } finally {
-      setLoading(false);
+    const r = editingExperience
+      ? await apiService.updateExperience(editingExperience.id, experienceForm)
+      : await apiService.createExperience(experienceForm);
+    if (r.error) handleApiError('save experience', r.error);
+    else {
+      await loadExperience();
+      setShowExperienceForm(false);
+      setEditingExperience(null);
+      setExperienceForm(EMPTY_EXPERIENCE);
     }
+    setLoading(false);
   };
-
   const handleExperienceEdit = (exp: Experience) => {
     setEditingExperience(exp);
     setExperienceForm({
@@ -299,81 +343,32 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ className = '' }) => {
     });
     setShowExperienceForm(true);
   };
-
   const handleExperienceDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this experience entry?'))
-      return;
-
+    if (!confirm('Delete this experience entry?')) return;
     setLoading(true);
-    setError(null);
-
-    try {
-      const response = await apiService.deleteExperience(id);
-      if (response.error) {
-        setError(`Failed to delete experience: ${response.error}`);
-      } else {
-        await loadExperience();
-      }
-    } catch {
-      setError('Delete failed');
-    } finally {
-      setLoading(false);
-    }
+    const r = await apiService.deleteExperience(id);
+    if (r.error) handleApiError('delete experience', r.error);
+    else await loadExperience();
+    setLoading(false);
   };
 
-  const resetExperienceForm = () => {
-    setExperienceForm({
-      title: '',
-      company: '',
-      location: '',
-      period: '',
-      start_date: '',
-      end_date: '',
-      description: '',
-      technologies: [],
-      achievements: [],
-    });
-  };
-
-  // Blog Post CRUD operations
+  // Blog CRUD
   const handleBlogPostSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
-    try {
-      if (editingPost) {
-        // Update blog post
-        const response = await apiService.updateBlogPost(
-          editingPost.id,
-          blogPostForm
-        );
-        if (response.error) {
-          setError(`Failed to update blog post: ${response.error}`);
-        } else {
-          await loadBlogPosts();
-          setShowBlogPostForm(false);
-          setEditingPost(null);
-          resetBlogPostForm();
-        }
-      } else {
-        // Create blog post
-        const response = await apiService.createBlogPost(blogPostForm);
-        if (response.error) {
-          setError(`Failed to create blog post: ${response.error}`);
-        } else {
-          await loadBlogPosts();
-          setShowBlogPostForm(false);
-          resetBlogPostForm();
-        }
-      }
-    } catch {
-      setError('Operation failed');
-    } finally {
-      setLoading(false);
+    const r = editingPost
+      ? await apiService.updateBlogPost(editingPost.id, blogPostForm)
+      : await apiService.createBlogPost(blogPostForm);
+    if (r.error) handleApiError('save blog post', r.error);
+    else {
+      await loadBlogPosts();
+      setShowBlogPostForm(false);
+      setEditingPost(null);
+      setBlogPostForm(EMPTY_BLOG);
     }
+    setLoading(false);
   };
-
   const handleBlogPostEdit = (post: BlogPost) => {
     setEditingPost(post);
     setBlogPostForm({
@@ -387,132 +382,190 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ className = '' }) => {
     });
     setShowBlogPostForm(true);
   };
-
   const handleBlogPostDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this blog post?')) return;
-
+    if (!confirm('Delete this blog post?')) return;
     setLoading(true);
-    setError(null);
-
-    try {
-      const response = await apiService.deleteBlogPost(id);
-      if (response.error) {
-        setError(`Failed to delete blog post: ${response.error}`);
-      } else {
-        await loadBlogPosts();
-      }
-    } catch {
-      setError('Delete failed');
-    } finally {
-      setLoading(false);
-    }
+    const r = await apiService.deleteBlogPost(id);
+    if (r.error) handleApiError('delete blog post', r.error);
+    else await loadBlogPosts();
+    setLoading(false);
   };
-
   const handleBlogPostPublish = async (id: number) => {
     setLoading(true);
-    setError(null);
-
-    try {
-      const response = await apiService.publishBlogPost(id);
-      if (response.error) {
-        setError(`Failed to publish blog post: ${response.error}`);
-      } else {
-        await loadBlogPosts();
-      }
-    } catch {
-      setError('Publish failed');
-    } finally {
-      setLoading(false);
-    }
+    const r = await apiService.publishBlogPost(id);
+    if (r.error) handleApiError('publish blog post', r.error);
+    else await loadBlogPosts();
+    setLoading(false);
   };
 
-  const resetBlogPostForm = () => {
-    setBlogPostForm({
-      title: '',
-      slug: '',
-      content: '',
-      excerpt: '',
-      read_time: '',
-      category_id: undefined,
-      published_at: undefined,
-    });
-  };
-
-  // Category CRUD operations
+  // Category CRUD
   const handleCategorySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
-    try {
-      if (editingCategory) {
-        // Update category
-        const response = await apiService.updateCategory(
-          editingCategory.id,
-          categoryForm
-        );
-        if (response.error) {
-          setError(`Failed to update category: ${response.error}`);
-        } else {
-          await loadCategories();
-          setShowCategoryForm(false);
-          setEditingCategory(null);
-          resetCategoryForm();
-        }
-      } else {
-        // Create category
-        const response = await apiService.createCategory(categoryForm);
-        if (response.error) {
-          setError(`Failed to create category: ${response.error}`);
-        } else {
-          await loadCategories();
-          setShowCategoryForm(false);
-          resetCategoryForm();
-        }
-      }
-    } catch {
-      setError('Operation failed');
-    } finally {
-      setLoading(false);
+    const r = editingCategory
+      ? await apiService.updateCategory(editingCategory.id, categoryForm)
+      : await apiService.createCategory(categoryForm);
+    if (r.error) handleApiError('save category', r.error);
+    else {
+      await loadCategories();
+      setShowCategoryForm(false);
+      setEditingCategory(null);
+      setCategoryForm(EMPTY_CATEGORY);
     }
+    setLoading(false);
   };
-
-  const handleCategoryEdit = (category: Category) => {
-    setEditingCategory(category);
+  const handleCategoryEdit = (c: Category) => {
+    setEditingCategory(c);
     setCategoryForm({
-      name: category.name,
-      slug: category.slug,
-      description: category.description || '',
+      name: c.name,
+      slug: c.slug,
+      description: c.description || '',
     });
     setShowCategoryForm(true);
   };
-
   const handleCategoryDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this category?')) return;
-
+    if (!confirm('Delete this category?')) return;
     setLoading(true);
-    setError(null);
-
-    try {
-      const response = await apiService.deleteCategory(id);
-      if (response.error) {
-        setError(`Failed to delete category: ${response.error}`);
-      } else {
-        await loadCategories();
-      }
-    } catch {
-      setError('Delete failed');
-    } finally {
-      setLoading(false);
-    }
+    const r = await apiService.deleteCategory(id);
+    if (r.error) handleApiError('delete category', r.error);
+    else await loadCategories();
+    setLoading(false);
   };
 
-  const resetCategoryForm = () => {
-    setCategoryForm({
-      name: '',
-      slug: '',
-      description: '',
+  // Skill CRUD
+  const handleSkillSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    const r = editingSkill
+      ? await apiService.updateSkill(editingSkill.id, skillForm)
+      : await apiService.createSkill(skillForm);
+    if (r.error) handleApiError('save skill', r.error);
+    else {
+      await loadSkills();
+      setShowSkillForm(false);
+      setEditingSkill(null);
+      setSkillForm(EMPTY_SKILL);
+    }
+    setLoading(false);
+  };
+  const handleSkillEdit = (s: Skill) => {
+    setEditingSkill(s);
+    setSkillForm({
+      name: s.name,
+      category: s.category,
+      proficiency: s.proficiency,
+      icon: s.icon || '',
+      order: s.order,
     });
+    setShowSkillForm(true);
+  };
+  const handleSkillDelete = async (id: number) => {
+    if (!confirm('Delete this skill?')) return;
+    setLoading(true);
+    const r = await apiService.deleteSkill(id);
+    if (r.error) handleApiError('delete skill', r.error);
+    else await loadSkills();
+    setLoading(false);
+  };
+
+  // Education CRUD
+  const handleEducationSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    // Convert empty strings to nullable fields
+    const payload = {
+      ...educationForm,
+      end_date: educationForm.end_date || undefined,
+      description: educationForm.description || undefined,
+    };
+    const r = editingEducation
+      ? await apiService.updateEducation(editingEducation.id, payload)
+      : await apiService.createEducation(payload);
+    if (r.error) handleApiError('save education', r.error);
+    else {
+      await loadEducation();
+      setShowEducationForm(false);
+      setEditingEducation(null);
+      setEducationForm(EMPTY_EDUCATION);
+    }
+    setLoading(false);
+  };
+  const handleEducationEdit = (ed: Education) => {
+    setEditingEducation(ed);
+    setEducationForm({
+      degree: ed.degree,
+      school: ed.school,
+      location: ed.location,
+      period: ed.period,
+      start_date: ed.start_date,
+      end_date: ed.end_date || '',
+      description: ed.description || '',
+      order: ed.order,
+    });
+    setShowEducationForm(true);
+  };
+  const handleEducationDelete = async (id: number) => {
+    if (!confirm('Delete this education entry?')) return;
+    setLoading(true);
+    const r = await apiService.deleteEducation(id);
+    if (r.error) handleApiError('delete education', r.error);
+    else await loadEducation();
+    setLoading(false);
+  };
+
+  // Certification CRUD
+  const handleCertSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    const payload = {
+      ...certForm,
+      credential_url: certForm.credential_url || undefined,
+    };
+    const r = editingCert
+      ? await apiService.updateCertification(editingCert.id, payload)
+      : await apiService.createCertification(payload);
+    if (r.error) handleApiError('save certification', r.error);
+    else {
+      await loadCertifications();
+      setShowCertForm(false);
+      setEditingCert(null);
+      setCertForm(EMPTY_CERTIFICATION);
+    }
+    setLoading(false);
+  };
+  const handleCertEdit = (c: Certification) => {
+    setEditingCert(c);
+    setCertForm({
+      name: c.name,
+      issuer: c.issuer,
+      issued_date: c.issued_date,
+      credential_url: c.credential_url || '',
+      order: c.order,
+    });
+    setShowCertForm(true);
+  };
+  const handleCertDelete = async (id: number) => {
+    if (!confirm('Delete this certification?')) return;
+    setLoading(true);
+    const r = await apiService.deleteCertification(id);
+    if (r.error) handleApiError('delete certification', r.error);
+    else await loadCertifications();
+    setLoading(false);
+  };
+
+  // Site Content
+  const handleSiteContentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    const r = await apiService.updateSiteContent(siteContentForm);
+    if (r.error) handleApiError('save site content', r.error);
+    else await loadSiteContent();
+    setLoading(false);
   };
 
   if (!isAuthenticated) {
@@ -532,7 +585,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ className = '' }) => {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md">
-          {/* Header */}
           <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -560,67 +612,58 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ className = '' }) => {
             </div>
           </div>
 
-          {/* Navigation Tabs */}
-          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <nav className="flex space-x-8">
-              <button
-                onClick={() => setActiveTab('projects')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'projects'
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-                }`}
-              >
-                Projects
-              </button>
-              <button
-                onClick={() => setActiveTab('experience')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'experience'
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-                }`}
-              >
-                Experience
-              </button>
-              <button
-                onClick={() => setActiveTab('blog')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'blog'
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-                }`}
-              >
-                Blog Posts
-              </button>
-              <button
-                onClick={() => setActiveTab('categories')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'categories'
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-                }`}
-              >
-                Categories
-              </button>
+          <div className="px-6 py-3 border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
+            <nav className="flex gap-1 min-w-max">
+              {TABS.map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`py-2 px-3 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${
+                    activeTab === tab.id
+                      ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
             </nav>
           </div>
 
-          {/* Error Display */}
           {error && (
-            <div className="px-6 py-3 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300">
-              {error}
+            <div className="px-6 py-3 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 flex items-center justify-between">
+              <span>{error}</span>
               <button
                 onClick={() => setError(null)}
-                className="float-right text-red-500 hover:text-red-700"
+                className="text-red-500 hover:text-red-700 ml-4"
+                aria-label="Dismiss error"
               >
                 ×
               </button>
             </div>
           )}
 
-          {/* Content */}
           <div className="p-6">
+            {/* Site Content */}
+            {activeTab === 'site-content' && (
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+                  Site Content
+                </h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                  These values appear in the Hero, About, Contact, and Footer
+                  sections of the public site.
+                </p>
+                <SiteContentForm
+                  form={siteContentForm}
+                  setForm={setSiteContentForm}
+                  onSubmit={handleSiteContentSubmit}
+                  loading={loading}
+                />
+              </div>
+            )}
+
+            {/* Projects */}
             {activeTab === 'projects' && (
               <div>
                 <div className="flex items-center justify-between mb-6">
@@ -633,14 +676,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ className = '' }) => {
                     onClick={() => {
                       setShowProjectForm(true);
                       setEditingProject(null);
-                      resetProjectForm();
+                      setProjectForm(EMPTY_PROJECT);
                     }}
                     disabled={loading}
                   >
                     Add New Project
                   </Button>
                 </div>
-
                 {showProjectForm && (
                   <ProjectForm
                     form={projectForm}
@@ -649,14 +691,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ className = '' }) => {
                     onCancel={() => {
                       setShowProjectForm(false);
                       setEditingProject(null);
-                      resetProjectForm();
+                      setProjectForm(EMPTY_PROJECT);
                     }}
                     editingProject={editingProject}
                     loading={loading}
                   />
                 )}
-
-                {/* Projects List */}
                 <div className="space-y-4">
                   {projects.map(project => (
                     <div
@@ -677,9 +717,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ className = '' }) => {
                             {project.description}
                           </p>
                           <div className="flex flex-wrap gap-1 mt-2">
-                            {project.technologies.map((tech, index) => (
+                            {project.technologies.map((tech, i) => (
                               <span
-                                key={index}
+                                key={i}
                                 className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-xs"
                               >
                                 {tech}
@@ -713,6 +753,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ className = '' }) => {
               </div>
             )}
 
+            {/* Experience */}
             {activeTab === 'experience' && (
               <div>
                 <div className="flex items-center justify-between mb-6">
@@ -725,14 +766,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ className = '' }) => {
                     onClick={() => {
                       setShowExperienceForm(true);
                       setEditingExperience(null);
-                      resetExperienceForm();
+                      setExperienceForm(EMPTY_EXPERIENCE);
                     }}
                     disabled={loading}
                   >
                     Add New Experience
                   </Button>
                 </div>
-
                 {showExperienceForm && (
                   <ExperienceForm
                     form={experienceForm}
@@ -741,14 +781,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ className = '' }) => {
                     onCancel={() => {
                       setShowExperienceForm(false);
                       setEditingExperience(null);
-                      resetExperienceForm();
+                      setExperienceForm(EMPTY_EXPERIENCE);
                     }}
                     editingExperience={editingExperience}
                     loading={loading}
                   />
                 )}
-
-                {/* Experience List */}
                 <div className="space-y-4">
                   {experience.map(exp => (
                     <div
@@ -772,16 +810,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ className = '' }) => {
                           <p className="text-gray-700 dark:text-gray-300 mt-2">
                             {exp.description}
                           </p>
-                          <div className="flex flex-wrap gap-1 mt-2">
-                            {exp.technologies.map((tech, index) => (
-                              <span
-                                key={index}
-                                className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-xs"
-                              >
-                                {tech}
-                              </span>
-                            ))}
-                          </div>
                         </div>
                         <div className="flex gap-2 ml-4">
                           <Button
@@ -809,6 +837,260 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ className = '' }) => {
               </div>
             )}
 
+            {/* Skills */}
+            {activeTab === 'skills' && (
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    Manage Skills
+                  </h2>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => {
+                      setShowSkillForm(true);
+                      setEditingSkill(null);
+                      setSkillForm(EMPTY_SKILL);
+                    }}
+                    disabled={loading}
+                  >
+                    Add New Skill
+                  </Button>
+                </div>
+                {showSkillForm && (
+                  <SkillForm
+                    form={skillForm}
+                    setForm={setSkillForm}
+                    onSubmit={handleSkillSubmit}
+                    onCancel={() => {
+                      setShowSkillForm(false);
+                      setEditingSkill(null);
+                      setSkillForm(EMPTY_SKILL);
+                    }}
+                    editingSkill={editingSkill}
+                    loading={loading}
+                  />
+                )}
+                <div className="space-y-2">
+                  {skills.map(skill => (
+                    <div
+                      key={skill.id}
+                      className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 flex items-center gap-4"
+                    >
+                      <span className="text-2xl">{skill.icon || '💻'}</span>
+                      <div className="flex-1">
+                        <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+                          {skill.name}{' '}
+                          <span className="text-xs px-2 py-0.5 ml-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full">
+                            {skill.category}
+                          </span>
+                        </h3>
+                        <div className="flex items-center gap-3 mt-1">
+                          <div className="h-1.5 w-32 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-blue-500"
+                              style={{ width: `${skill.proficiency}%` }}
+                            />
+                          </div>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            {skill.proficiency}% · order {skill.order}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleSkillEdit(skill)}
+                          disabled={loading}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleSkillDelete(skill.id)}
+                          disabled={loading}
+                          className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Education */}
+            {activeTab === 'education' && (
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    Manage Education
+                  </h2>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => {
+                      setShowEducationForm(true);
+                      setEditingEducation(null);
+                      setEducationForm(EMPTY_EDUCATION);
+                    }}
+                    disabled={loading}
+                  >
+                    Add New Education
+                  </Button>
+                </div>
+                {showEducationForm && (
+                  <EducationForm
+                    form={educationForm}
+                    setForm={setEducationForm}
+                    onSubmit={handleEducationSubmit}
+                    onCancel={() => {
+                      setShowEducationForm(false);
+                      setEditingEducation(null);
+                      setEducationForm(EMPTY_EDUCATION);
+                    }}
+                    editingEducation={editingEducation}
+                    loading={loading}
+                  />
+                )}
+                <div className="space-y-4">
+                  {education.map(ed => (
+                    <div
+                      key={ed.id}
+                      className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                            {ed.degree}
+                          </h3>
+                          <p className="text-blue-600 dark:text-blue-400 font-medium">
+                            {ed.school}
+                          </p>
+                          <p className="text-gray-500 dark:text-gray-400 text-sm">
+                            {ed.location} · {ed.period}
+                          </p>
+                          {ed.description && (
+                            <p className="text-gray-700 dark:text-gray-300 mt-2 text-sm">
+                              {ed.description}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex gap-2 ml-4">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEducationEdit(ed)}
+                            disabled={loading}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEducationDelete(ed.id)}
+                            disabled={loading}
+                            className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Certifications */}
+            {activeTab === 'certifications' && (
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    Manage Certifications
+                  </h2>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => {
+                      setShowCertForm(true);
+                      setEditingCert(null);
+                      setCertForm(EMPTY_CERTIFICATION);
+                    }}
+                    disabled={loading}
+                  >
+                    Add New Certification
+                  </Button>
+                </div>
+                {showCertForm && (
+                  <CertificationForm
+                    form={certForm}
+                    setForm={setCertForm}
+                    onSubmit={handleCertSubmit}
+                    onCancel={() => {
+                      setShowCertForm(false);
+                      setEditingCert(null);
+                      setCertForm(EMPTY_CERTIFICATION);
+                    }}
+                    editingCertification={editingCert}
+                    loading={loading}
+                  />
+                )}
+                <div className="space-y-4">
+                  {certifications.map(c => (
+                    <div
+                      key={c.id}
+                      className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+                            {c.name}
+                          </h3>
+                          <p className="text-gray-600 dark:text-gray-300 text-sm">
+                            {c.issuer} · {c.issued_date}
+                          </p>
+                          {c.credential_url && (
+                            <a
+                              href={c.credential_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 dark:text-blue-400 text-sm hover:underline"
+                            >
+                              View credential →
+                            </a>
+                          )}
+                        </div>
+                        <div className="flex gap-2 ml-4">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleCertEdit(c)}
+                            disabled={loading}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleCertDelete(c.id)}
+                            disabled={loading}
+                            className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Blog */}
             {activeTab === 'blog' && (
               <div>
                 <div className="flex items-center justify-between mb-6">
@@ -821,14 +1103,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ className = '' }) => {
                     onClick={() => {
                       setShowBlogPostForm(true);
                       setEditingPost(null);
-                      resetBlogPostForm();
+                      setBlogPostForm(EMPTY_BLOG);
                     }}
                     disabled={loading}
                   >
                     Add New Blog Post
                   </Button>
                 </div>
-
                 {showBlogPostForm && (
                   <BlogPostForm
                     form={blogPostForm}
@@ -837,14 +1118,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ className = '' }) => {
                     onCancel={() => {
                       setShowBlogPostForm(false);
                       setEditingPost(null);
-                      resetBlogPostForm();
+                      setBlogPostForm(EMPTY_BLOG);
                     }}
                     editingPost={editingPost}
                     loading={loading}
                   />
                 )}
-
-                {/* Blog Posts List */}
                 <div className="space-y-4">
                   {blogPosts.map(post => (
                     <div
@@ -869,14 +1148,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ className = '' }) => {
                               {post.excerpt}
                             </p>
                           )}
-                          <div className="flex items-center gap-4 mt-2 text-sm text-gray-500 dark:text-gray-400">
-                            {post.read_time && <span>{post.read_time}</span>}
-                            {post.category && (
-                              <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full">
-                                {post.category.name}
-                              </span>
-                            )}
-                          </div>
                         </div>
                         <div className="flex gap-2 ml-4">
                           <Button
@@ -915,6 +1186,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ className = '' }) => {
               </div>
             )}
 
+            {/* Categories */}
             {activeTab === 'categories' && (
               <div>
                 <div className="flex items-center justify-between mb-6">
@@ -927,14 +1199,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ className = '' }) => {
                     onClick={() => {
                       setShowCategoryForm(true);
                       setEditingCategory(null);
-                      resetCategoryForm();
+                      setCategoryForm(EMPTY_CATEGORY);
                     }}
                     disabled={loading}
                   >
                     Add New Category
                   </Button>
                 </div>
-
                 {showCategoryForm && (
                   <CategoryForm
                     form={categoryForm}
@@ -943,14 +1214,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ className = '' }) => {
                     onCancel={() => {
                       setShowCategoryForm(false);
                       setEditingCategory(null);
-                      resetCategoryForm();
+                      setCategoryForm(EMPTY_CATEGORY);
                     }}
                     editingCategory={editingCategory}
                     loading={loading}
                   />
                 )}
-
-                {/* Categories List */}
                 <div className="space-y-4">
                   {categories.map(category => (
                     <div

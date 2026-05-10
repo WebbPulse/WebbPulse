@@ -13,15 +13,6 @@ export interface ButtonProps extends BaseComponentProps {
   type?: 'button' | 'submit' | 'reset';
 }
 
-export interface CardProps extends BaseComponentProps {
-  title?: string;
-  description?: string;
-  image?: string;
-  link?: string;
-  category?: string;
-  placeholderType?: 'project' | 'blog' | 'value' | 'default';
-}
-
 export interface NavigationItem {
   label: string;
   href: string;
@@ -32,24 +23,6 @@ export interface SocialLink {
   platform: string;
   url: string;
   icon: string;
-}
-
-export interface Project {
-  id: string;
-  title: string;
-  description: string;
-  image: string;
-  technologies: string[];
-  githubUrl?: string;
-  liveUrl?: string | null;
-  featured?: boolean;
-}
-
-export interface Skill {
-  name: string;
-  category: 'frontend' | 'backend' | 'devops' | 'design' | 'other';
-  proficiency: number; // 1-100
-  icon?: string;
 }
 
 export interface ContactFormData {
