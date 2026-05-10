@@ -26,6 +26,8 @@ backend/.env.*
 backend/htmlcov/
 backend/.coverage
 backend/.pytest_cache/
+backend/*.db
+backend/*.db-journal
 
 # -----------------------------------------------------------------------------
 # Terraform (terraform/)
@@ -60,3 +62,8 @@ Thumbs.db
 .env.*
 !.env.example
 .envrc
+
+# -----------------------------------------------------------------------------
+# Claude Code / agent tooling
+# -----------------------------------------------------------------------------
+.claude/
