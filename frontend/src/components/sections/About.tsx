@@ -66,11 +66,15 @@ export const About: React.FC<AboutProps> = ({ className = '' }) => {
             </div>
           </div>
 
-          {/* Profile Image/Illustration */}
+          {/* Profile Image */}
           <div className="flex justify-center lg:justify-end">
             <div className="relative">
-              <div className="w-80 h-80 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                <div className="text-white text-6xl font-bold">TW</div>
+              <div className="w-80 h-80 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full p-1.5">
+                <img
+                  src="/headshot.jpg"
+                  alt="Tyler Webb"
+                  className="w-full h-full rounded-full object-cover"
+                />
               </div>
               <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-green-500 rounded-full flex items-center justify-center">
                 <span className="text-white text-2xl">🚀</span>
