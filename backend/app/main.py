@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .api.v1.api import api_router
 from .config import settings
+from .core.admin import seed_admin_user
 from .core.rate_limiter import rate_limit_middleware, rate_limiter
 from .database import run_migrations, test_db_connection
 
@@ -34,6 +35,7 @@ async def lifespan(app: FastAPI):
         # Run database migrations
         if run_migrations():
             logger.info("Database initialized successfully")
+            seed_admin_user()
         else:
             logger.error("Failed to run database migrations")
     else:

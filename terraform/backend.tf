@@ -26,11 +26,11 @@ resource "aws_ecr_lifecycle_policy" "backend" {
   policy = jsonencode({
     rules = [{
       rulePriority = 1
-      description  = "Keep last 10 images"
+      description  = "Keep last 3 images"
       selection = {
         tagStatus   = "any"
         countType   = "imageCountMoreThan"
-        countNumber = 10
+        countNumber = 3
       }
       action = { type = "expire" }
     }]
@@ -112,17 +112,16 @@ resource "aws_apprunner_service" "backend" {
         port = "8000"
 
         runtime_environment_secrets = {
-          DATABASE_URL                   = aws_ssm_parameter.database_url.arn
-          SECRET_KEY                     = aws_ssm_parameter.secret_key.arn
-          SENDGRID_API_KEY               = aws_ssm_parameter.sendgrid_api_key.arn
-          SENDGRID_SUBSCRIPTION_GROUP_ID = aws_ssm_parameter.sendgrid_subscription_group_id.arn
+          DATABASE_URL   = aws_ssm_parameter.database_url.arn
+          SECRET_KEY     = aws_ssm_parameter.secret_key.arn
+          ADMIN_USERNAME = aws_ssm_parameter.admin_username.arn
+          ADMIN_PASSWORD = aws_ssm_parameter.admin_password.arn
+          ADMIN_EMAIL    = aws_ssm_parameter.admin_email.arn
         }
 
         runtime_environment_variables = {
-          ENVIRONMENT         = var.environment
-          CORS_ORIGINS        = "https://www.webbpulse.com,https://webbpulse.com"
-          SENDGRID_FROM_EMAIL = "noreply@webbpulse.com"
-          SENDGRID_FROM_NAME  = "Tyler Webb Portfolio"
+          ENVIRONMENT  = var.environment
+          CORS_ORIGINS = "https://www.webbpulse.com,https://webbpulse.com"
         }
       }
     }

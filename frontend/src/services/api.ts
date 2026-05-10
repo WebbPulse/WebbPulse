@@ -71,12 +71,6 @@ export interface Category {
   description?: string;
 }
 
-export interface NewsletterSubscription {
-  email: string;
-  first_name?: string;
-  last_name?: string;
-}
-
 export interface UserLogin {
   username: string;
   password: string;
@@ -320,19 +314,6 @@ class ApiService {
     return this.request<{ message: string }>(`/posts/categories/${id}`, {
       method: 'DELETE',
     });
-  }
-
-  // Newsletter Subscription API
-  async subscribeToNewsletter(
-    subscription: NewsletterSubscription
-  ): Promise<ApiResponse<{ message: string; email: string; status: string }>> {
-    return this.request<{ message: string; email: string; status: string }>(
-      '/subscribers/subscribe',
-      {
-        method: 'POST',
-        body: JSON.stringify(subscription),
-      }
-    );
   }
 }
 

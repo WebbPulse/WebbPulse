@@ -5,7 +5,6 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from slugify import slugify
 from sqlalchemy.orm import Session
 
-from ....core.email import email_service
 from ....core.security import get_current_user
 from ....database import get_db
 from ....models import Category, Post, User
@@ -184,7 +183,7 @@ async def publish_post(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Publish a blog post and notify subscribers (admin only)"""
+    """Publish a blog post (admin only)"""
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Not authorized to publish posts")
 
@@ -195,14 +194,8 @@ async def publish_post(
     if db_post.published_at:
         raise HTTPException(status_code=400, detail="Post is already published")
 
-    # Publish the post
     db_post.published_at = datetime.now(timezone.utc)
     db.commit()
-
-    # Notify subscribers using SendGrid's subscription group
-    # This automatically handles unsubscribe compliance
-    post_url = f"https://webbpulse.com/blog/{db_post.slug}"
-    email_service.send_new_post_notification(db_post.title, post_url)
 
     return {"message": "Post published successfully"}
 

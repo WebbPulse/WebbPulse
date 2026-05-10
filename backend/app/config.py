@@ -19,11 +19,10 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
-    # SendGrid (email service)
-    SENDGRID_API_KEY: Optional[str] = None
-    SENDGRID_FROM_EMAIL: str = "noreply@webbpulse.com"
-    SENDGRID_FROM_NAME: str = "Tyler Webb Portfolio"
-    SENDGRID_SUBSCRIPTION_GROUP_ID: Optional[str] = None
+    # Admin user — seeded into the database on startup
+    ADMIN_USERNAME: str
+    ADMIN_PASSWORD: str
+    ADMIN_EMAIL: str
 
     # Application
     APP_NAME: str = "Portfolio Blog API"

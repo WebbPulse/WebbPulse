@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Card, Button, NewsletterSignup } from '../common';
+import { Card, Button } from '../common';
 import { apiService } from '../../services/api';
 import type { BaseComponentProps } from '../../types';
 import type { BlogPost } from '../../services/api';
@@ -158,9 +158,6 @@ export const Blog: React.FC<BlogProps> = ({ className = '' }) => {
             )}
           </>
         )}
-
-        {/* Newsletter Signup */}
-        <NewsletterSignup />
 
         {/* View All Posts Button */}
         {blogPosts.length > 0 && (

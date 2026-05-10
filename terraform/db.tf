@@ -48,8 +48,6 @@ resource "aws_db_instance" "main" {
 
 # ---------------------------------------------------------------------------
 # SSM parameters — secrets injected into App Runner at runtime
-# Update sendgrid_api_key and sendgrid_subscription_group_id manually
-# after first apply; Terraform ignores subsequent value changes.
 # ---------------------------------------------------------------------------
 
 resource "aws_ssm_parameter" "database_url" {
@@ -64,27 +62,39 @@ resource "aws_ssm_parameter" "secret_key" {
   value = random_password.secret_key.result
 }
 
-resource "aws_ssm_parameter" "sendgrid_api_key" {
-  name  = "/${local.prefix}/sendgrid-api-key"
-  type  = "SecureString"
-  value = "REPLACE_ME"
-
-  lifecycle {
-    ignore_changes = [value]
-  }
-}
-
-resource "aws_ssm_parameter" "sendgrid_subscription_group_id" {
-  name  = "/${local.prefix}/sendgrid-subscription-group-id"
-  type  = "SecureString"
-  value = "REPLACE_ME"
-
-  lifecycle {
-    ignore_changes = [value]
-  }
-}
-
 resource "random_password" "secret_key" {
   length  = 64
   special = true
+}
+
+# Admin credentials seeded into the app on startup. Set values manually
+# in SSM after first apply; Terraform ignores subsequent changes.
+resource "aws_ssm_parameter" "admin_username" {
+  name  = "/${local.prefix}/admin-username"
+  type  = "SecureString"
+  value = "REPLACE_ME"
+
+  lifecycle {
+    ignore_changes = [value]
+  }
+}
+
+resource "aws_ssm_parameter" "admin_password" {
+  name  = "/${local.prefix}/admin-password"
+  type  = "SecureString"
+  value = "REPLACE_ME"
+
+  lifecycle {
+    ignore_changes = [value]
+  }
+}
+
+resource "aws_ssm_parameter" "admin_email" {
+  name  = "/${local.prefix}/admin-email"
+  type  = "SecureString"
+  value = "REPLACE_ME"
+
+  lifecycle {
+    ignore_changes = [value]
+  }
 }

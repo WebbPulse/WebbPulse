@@ -12,7 +12,6 @@ tests/
 ├── test_posts_api.py        # Blog posts API tests
 ├── test_projects_api.py     # Projects API tests
 ├── test_experience_api.py   # Experience API tests
-├── test_subscribers_api.py  # Newsletter subscription tests
 ├── test_core_security.py    # Security module unit tests
 ├── test_models.py           # Database model tests
 └── README.md               # This file
@@ -31,7 +30,6 @@ tests/
 - **Posts API**: CRUD operations for blog posts and categories
 - **Projects API**: CRUD operations for portfolio projects
 - **Experience API**: CRUD operations for work experience
-- **Subscribers API**: Newsletter subscription management
 - **Authentication API**: Login, token validation, authorization
 
 ### 3. Integration Tests (`@pytest.mark.integration`)
@@ -194,17 +192,6 @@ python run_tests.py format    # Format code with black/isort
 - `sample_experience_data`: Sample experience creation data
 
 ## Mocking and External Dependencies
-
-### Email Service Mocking
-
-The subscriber tests use mocks for the SendGrid email service to avoid external API calls:
-
-```python
-@patch('app.core.email.email_service.add_to_subscription_group')
-def test_subscribe_newsletter_success(self, mock_add_to_group, client):
-    mock_add_to_group.return_value = True
-    # Test implementation
-```
 
 ### Database Mocking
 

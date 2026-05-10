@@ -46,8 +46,9 @@ jobs:
         env:
           DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
           SECRET_KEY: test-secret-key
-          SENDGRID_API_KEY: test-key
-          SENDGRID_FROM_EMAIL: test@example.com
+          ADMIN_USERNAME: test-admin
+          ADMIN_PASSWORD: test-admin-password
+          ADMIN_EMAIL: test-admin@example.com
         run: |
           pytest tests/ -v --tb=short
 

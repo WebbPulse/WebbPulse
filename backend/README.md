@@ -122,10 +122,10 @@ SECRET_KEY=your-secret-key-here
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 
-# Email Configuration
-SENDGRID_API_KEY=your_sendgrid_api_key
-SENDGRID_FROM_EMAIL=noreply@webbpulse.com
-SENDGRID_FROM_NAME=Tyler Webb Portfolio
+# Admin user (seeded into the DB on app startup)
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=change-me
+ADMIN_EMAIL=tyler@webbpulse.com
 
 # Application
 DEBUG=true
@@ -183,11 +183,6 @@ docker-compose up -d postgres
 
 - `GET /api/v1/categories` - List all categories
 - `POST /api/v1/categories` - Create new category
-
-### Subscribers
-
-- `POST /api/v1/subscribers` - Subscribe to newsletter
-- `GET /api/v1/subscribers` - List subscribers (admin only)
 
 ## Development
 
@@ -280,8 +275,10 @@ alembic history
 ```env
 DATABASE_URL=postgresql://user:password@host:port/database
 SECRET_KEY=your-production-secret-key
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=your-production-admin-password
+ADMIN_EMAIL=tyler@webbpulse.com
 DEBUG=false
-SENDGRID_API_KEY=your-production-sendgrid-key
 CORS_ORIGINS=https://webbpulse.com,https://www.webbpulse.com
 ```
 

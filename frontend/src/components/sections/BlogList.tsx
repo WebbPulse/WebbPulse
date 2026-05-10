@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Header, Footer } from '../layout';
-import { Card, Button, NewsletterSignup } from '../common';
+import { Card, Button } from '../common';
 import { apiService } from '../../services/api';
 import type { BlogPost } from '../../services/api';
 import type { NavigationItem, SocialLink } from '../../types';
@@ -191,10 +191,6 @@ export const BlogList: React.FC = () => {
             </Link>
           </div>
 
-          {/* Newsletter Signup */}
-          <div className="mt-16">
-            <NewsletterSignup />
-          </div>
         </div>
       </main>
       <Footer socialLinks={socialLinks} />

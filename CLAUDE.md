@@ -64,7 +64,6 @@ alembic upgrade head
 - **Auth**: JWT tokens (python-jose/bcrypt). Users have an `is_admin` boolean flag
 - **Database**: PostgreSQL via SQLAlchemy 2.0 ORM + Alembic migrations. Local dev uses Docker Compose
 - **Rate limiting**: Custom middleware in `app/core/` with per-minute/hour/day limits
-- **Email**: SendGrid integration for newsletter subscriptions
 
 ### Key files
 

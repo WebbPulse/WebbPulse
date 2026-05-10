@@ -2,7 +2,6 @@ from .category import Category, CategoryCreate, CategoryUpdate
 from .experience import Experience, ExperienceCreate, ExperienceList, ExperienceUpdate
 from .post import Post, PostCreate, PostList, PostUpdate
 from .project import Project, ProjectCreate, ProjectList, ProjectUpdate
-from .subscriber import NewsletterSubscription
 from .user import Token, TokenData, User, UserCreate, UserLogin, UserUpdate
 
 __all__ = [
@@ -19,7 +18,6 @@ __all__ = [
     "PostCreate",
     "PostUpdate",
     "PostList",
-    "NewsletterSubscription",
     "Project",
     "ProjectCreate",
     "ProjectUpdate",
