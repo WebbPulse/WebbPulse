@@ -36,7 +36,17 @@ from app.config import settings
 from app.core.security import create_access_token, get_password_hash
 from app.database import Base, get_db
 from app.main import app
-from app.models import Category, Experience, Post, Project, User
+from app.models import (
+    Category,
+    Certification,
+    Education,
+    Experience,
+    Post,
+    Project,
+    SiteContent,
+    Skill,
+    User,
+)
 
 # Test database configuration
 TEST_DATABASE_URL = "sqlite:///./test.db"
@@ -221,6 +231,90 @@ def test_experience(db_session: Session) -> Experience:
 
 
 @pytest.fixture
+def test_education(db_session: Session) -> Education:
+    """Create a test education entry."""
+    entry = Education(
+        degree="Test Degree",
+        school="Test University",
+        location="Test City, ST",
+        period="Aug 2018 - May 2022",
+        start_date=datetime(2018, 8, 1).date(),
+        end_date=datetime(2022, 5, 31).date(),
+        description="A test education description",
+        order=10,
+        is_active=True,
+    )
+    db_session.add(entry)
+    db_session.commit()
+    db_session.refresh(entry)
+    return entry
+
+
+@pytest.fixture
+def test_certification(db_session: Session) -> Certification:
+    """Create a test certification."""
+    entry = Certification(
+        name="Test Cert",
+        issuer="Test Issuer",
+        issued_date=datetime(2023, 1, 1).date(),
+        credential_url="https://example.com/cred",
+        order=10,
+        is_active=True,
+    )
+    db_session.add(entry)
+    db_session.commit()
+    db_session.refresh(entry)
+    return entry
+
+
+@pytest.fixture
+def test_site_content(db_session: Session) -> SiteContent:
+    """Create the singleton site content row used by tests.
+
+    The migration that seeds this row is skipped under SQLite test setup
+    (create_all is used instead of running migrations), so each test that
+    needs site content seeds it via this fixture.
+    """
+    content = SiteContent(
+        id=1,
+        hero_title="Hi, I'm Test",
+        hero_subtitle="Test Subtitle",
+        hero_description="Test description",
+        about_paragraphs=["Paragraph one.", "Paragraph two."],
+        about_values=[
+            {"title": "Test Value", "description": "Why it matters", "icon": "✨"},
+        ],
+        profile_image_url="/headshot.jpg",
+        resume_url=None,
+        email="test@example.com",
+        github_url="https://github.com/test",
+        linkedin_url="https://linkedin.com/in/test",
+        footer_tagline="Test tagline",
+    )
+    db_session.add(content)
+    db_session.commit()
+    db_session.refresh(content)
+    return content
+
+
+@pytest.fixture
+def test_skill(db_session: Session) -> Skill:
+    """Create a test skill."""
+    skill = Skill(
+        name="Test Skill",
+        category="frontend",
+        proficiency=75,
+        icon="🧪",
+        order=10,
+        is_active=True,
+    )
+    db_session.add(skill)
+    db_session.commit()
+    db_session.refresh(skill)
+    return skill
+
+
+@pytest.fixture
 def auth_headers(test_user: User) -> dict:
     """Create authentication headers for a test user."""
     access_token = create_access_token(data={"sub": test_user.username})
@@ -291,4 +385,43 @@ def sample_experience_data() -> dict:
         "description": "A sample job description",
         "technologies": ["Python", "JavaScript", "Docker"],
         "achievements": ["Achievement 1", "Achievement 2"],
+    }
+
+
+@pytest.fixture
+def sample_skill_data() -> dict:
+    """Sample skill data for testing."""
+    return {
+        "name": "Sample Skill",
+        "category": "backend",
+        "proficiency": 80,
+        "icon": "🔧",
+        "order": 20,
+    }
+
+
+@pytest.fixture
+def sample_education_data() -> dict:
+    """Sample education data for testing."""
+    return {
+        "degree": "Sample Degree",
+        "school": "Sample University",
+        "location": "Sample City, ST",
+        "period": "Aug 2018 - May 2022",
+        "start_date": "2018-08-01",
+        "end_date": "2022-05-31",
+        "description": "Sample description",
+        "order": 20,
+    }
+
+
+@pytest.fixture
+def sample_certification_data() -> dict:
+    """Sample certification data for testing."""
+    return {
+        "name": "Sample Certification",
+        "issuer": "Sample Issuer",
+        "issued_date": "2023-06-01",
+        "credential_url": "https://example.com/cred/123",
+        "order": 20,
     }
