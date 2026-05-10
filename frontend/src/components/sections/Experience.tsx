@@ -100,11 +100,6 @@ export const Experience: React.FC<ExperienceProps> = ({ className = '' }) => {
                 <p className="text-gray-700 dark:text-gray-300 mb-3">
                   {education.description}
                 </p>
-                {education.gpa && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    GPA: {education.gpa}
-                  </p>
-                )}
               </div>
             ))}
           </div>
