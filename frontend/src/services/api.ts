@@ -71,7 +71,13 @@ export interface Category {
   description?: string;
 }
 
-export type SkillCategory = 'frontend' | 'backend' | 'devops' | 'other';
+export type SkillCategory =
+  | 'frontend'
+  | 'backend'
+  | 'devops'
+  | 'cloud'
+  | 'networking'
+  | 'other';
 export type SkillTier = 'core' | 'working' | 'familiar';
 
 export interface Skill {

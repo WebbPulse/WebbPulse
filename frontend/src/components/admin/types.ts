@@ -93,11 +93,18 @@ export interface CategoryFormData {
 
 // Skill
 export type SkillTier = 'core' | 'working' | 'familiar';
+export type SkillCategory =
+  | 'frontend'
+  | 'backend'
+  | 'devops'
+  | 'cloud'
+  | 'networking'
+  | 'other';
 
 export interface Skill {
   id: number;
   name: string;
-  category: 'frontend' | 'backend' | 'devops' | 'other';
+  category: SkillCategory;
   tier: SkillTier;
   icon?: string;
   order: number;
@@ -106,7 +113,7 @@ export interface Skill {
 
 export interface SkillFormData {
   name: string;
-  category: 'frontend' | 'backend' | 'devops' | 'other';
+  category: SkillCategory;
   tier: SkillTier;
   icon: string;
   order: number;

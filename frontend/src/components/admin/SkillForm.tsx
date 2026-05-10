@@ -59,6 +59,8 @@ export const SkillForm: React.FC<SkillFormProps> = ({
               <option value="frontend">Frontend</option>
               <option value="backend">Backend</option>
               <option value="devops">DevOps</option>
+              <option value="cloud">Cloud Platforms</option>
+              <option value="networking">Networking &amp; IT</option>
               <option value="other">Other</option>
             </select>
           </div>
@@ -66,16 +68,20 @@ export const SkillForm: React.FC<SkillFormProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className={labelClass}>Icon (emoji)</label>
+            <label className={labelClass}>Icon</label>
             <input
               type="text"
               value={form.icon}
               onChange={e =>
                 setForm(prev => ({ ...prev, icon: e.target.value }))
               }
-              placeholder="⚛️"
+              placeholder="si:react or 🤖"
               className={inputClass}
             />
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              Emoji, or <code>si:&lt;name&gt;</code> for a brand logo (e.g.{' '}
+              <code>si:react</code>, <code>si:python</code>).
+            </p>
           </div>
           <div>
             <label className={labelClass}>Order</label>

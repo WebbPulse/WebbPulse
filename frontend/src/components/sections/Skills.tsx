@@ -1,7 +1,36 @@
 import React from 'react';
+import * as SimpleIcons from 'react-icons/si';
 import { GradientText } from '../common';
 import { useSkills, useInViewReveal } from '../../hooks';
 import type { Skill, SkillCategory, SkillTier } from '../../services/api';
+
+// `icon` is a free-form string. Strings that start with `si:` resolve to a
+// Simple Icons brand logo from react-icons (e.g. `si:react` → SiReact). Anything
+// else (emoji, plain text) renders as-is so soft skills without a brand logo
+// keep their emoji.
+const SkillIcon: React.FC<{ icon?: string; name: string }> = ({
+  icon,
+  name,
+}) => {
+  if (icon?.startsWith('si:')) {
+    const key = icon.slice(3);
+    const componentName =
+      'Si' + key.charAt(0).toUpperCase() + key.slice(1).toLowerCase();
+    const Logo = (SimpleIcons as Record<string, React.ComponentType<{ className?: string; 'aria-label'?: string }>>)[
+      componentName
+    ];
+    if (Logo) {
+      return (
+        <Logo className="w-8 h-8 text-surface-100" aria-label={name} />
+      );
+    }
+  }
+  return (
+    <span className="text-3xl" aria-hidden="true">
+      {icon ?? '💻'}
+    </span>
+  );
+};
 
 const CATEGORY_META: Record<
   SkillCategory,
@@ -22,6 +51,16 @@ const CATEGORY_META: Record<
     accent: 'text-accent-fuchsia-400',
     glow: 'hover:shadow-glow-fuchsia',
   },
+  cloud: {
+    label: 'Cloud Platforms',
+    accent: 'text-accent-cyan-400',
+    glow: 'hover:shadow-glow-cyan',
+  },
+  networking: {
+    label: 'Networking & IT',
+    accent: 'text-accent-violet-300',
+    glow: 'hover:shadow-glow-violet',
+  },
   other: {
     label: 'Other',
     accent: 'text-surface-200',
@@ -33,6 +72,8 @@ const CATEGORY_ORDER: SkillCategory[] = [
   'frontend',
   'backend',
   'devops',
+  'cloud',
+  'networking',
   'other',
 ];
 
@@ -107,9 +148,7 @@ const SkillCard: React.FC<{ skill: Skill; index: number }> = ({
       title={`${tierMeta.label} — ${tierMeta.description}`}
     >
       <div className="flex items-start justify-between">
-        <span className="text-3xl" aria-hidden="true">
-          {skill.icon ?? '💻'}
-        </span>
+        <SkillIcon icon={skill.icon} name={skill.name} />
         <span
           className={`flex items-center gap-1.5 text-[11px] uppercase tracking-[0.14em] font-medium ${tierMeta.accent}`}
         >
@@ -160,7 +199,14 @@ export const Skills: React.FC = () => {
       (acc[skill.category] = acc[skill.category] || []).push(skill);
       return acc;
     },
-    { frontend: [], backend: [], devops: [], other: [] }
+    {
+      frontend: [],
+      backend: [],
+      devops: [],
+      cloud: [],
+      networking: [],
+      other: [],
+    }
   );
 
   return (
