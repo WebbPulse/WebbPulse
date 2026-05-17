@@ -90,6 +90,9 @@ resource "aws_route53_record" "mx" {
   ]
 }
 
+# Apex TXT record set. DNS permits only one TXT RRset per name, so SPF and
+# the Google Search Console site-verification token must share this record
+# (each is a separate TXT character-string).
 resource "aws_route53_record" "spf" {
   zone_id = aws_route53_zone.webbpulse.zone_id
   name    = "webbpulse.com"
@@ -98,6 +101,7 @@ resource "aws_route53_record" "spf" {
 
   records = [
     "v=spf1 include:_spf.google.com ~all",
+    "google-site-verification=ZJMhCX-UOCR6TsbqXWz5AJARy8wHO4Lcoig8021mMJA",
   ]
 }
 
