@@ -143,7 +143,7 @@ SEED_PROJECTS = [
             "AWS",
             "Terraform",
         ],
-        "github_url": None,
+        "github_url": "https://github.com/WebbPulse/WebbPulse",
         "live_url": "https://webbpulse.com",
         "featured": True,
         "is_active": True,
