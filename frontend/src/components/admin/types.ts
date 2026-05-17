@@ -11,6 +11,7 @@ export interface Project {
   github_url?: string;
   live_url?: string;
   featured: boolean;
+  display_order: number;
   created_at: string;
 }
 
@@ -36,6 +37,7 @@ export interface ProjectFormData {
   github_url: string;
   live_url: string;
   featured: boolean;
+  display_order: number;
 }
 
 export interface ExperienceFormData {
@@ -182,6 +184,7 @@ export interface SiteContentFormData {
   github_url: string;
   linkedin_url: string;
   footer_tagline: string;
+  project_sort_mode: string;
 }
 
 export type AdminTab =

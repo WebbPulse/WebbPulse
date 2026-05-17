@@ -62,10 +62,10 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Image URL
+              Image URL or path
             </label>
             <input
-              type="url"
+              type="text"
               value={form.image}
               onChange={e =>
                 setForm(prev => ({
@@ -158,25 +158,51 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
             Add Technology
           </Button>
         </div>
-        <div className="flex items-center">
-          <input
-            type="checkbox"
-            id="featured"
-            checked={form.featured}
-            onChange={e =>
-              setForm(prev => ({
-                ...prev,
-                featured: e.target.checked,
-              }))
-            }
-            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-          />
-          <label
-            htmlFor="featured"
-            className="ml-2 block text-sm text-gray-900 dark:text-gray-300"
-          >
-            Featured Project
-          </label>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="featured"
+              checked={form.featured}
+              onChange={e =>
+                setForm(prev => ({
+                  ...prev,
+                  featured: e.target.checked,
+                }))
+              }
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <label
+              htmlFor="featured"
+              className="ml-2 block text-sm text-gray-900 dark:text-gray-300"
+            >
+              Featured Project
+            </label>
+          </div>
+          <div>
+            <label
+              htmlFor="display_order"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
+              Display order
+            </label>
+            <input
+              type="number"
+              id="display_order"
+              value={form.display_order}
+              onChange={e =>
+                setForm(prev => ({
+                  ...prev,
+                  display_order: Number(e.target.value),
+                }))
+              }
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:text-white"
+            />
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              Lower numbers appear first (used when site sort mode is "Manual").
+              Featured projects always appear above non-featured.
+            </p>
+          </div>
         </div>
         <div className="flex gap-2">
           <Button type="submit" variant="primary" disabled={loading}>

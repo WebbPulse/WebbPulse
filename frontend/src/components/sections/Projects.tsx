@@ -146,6 +146,8 @@ export const Projects: React.FC = () => {
   const [showAll, setShowAll] = useState(false);
 
   const projects = data ?? [];
+  // The API already returns projects ordered: featured pinned first, then
+  // the site-wide sort mode applied within each group. Preserve that order.
   const filtered = projects.filter(p => matchesCategory(p, filter));
   const displayed = showAll ? filtered : filtered.slice(0, 6);
 

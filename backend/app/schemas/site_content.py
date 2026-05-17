@@ -22,6 +22,7 @@ class SiteContentBase(BaseModel):
     github_url: Optional[str] = None
     linkedin_url: Optional[str] = None
     footer_tagline: Optional[str] = None
+    project_sort_mode: str = "manual"
 
 
 class SiteContentUpdate(BaseModel):
@@ -36,6 +37,7 @@ class SiteContentUpdate(BaseModel):
     github_url: Optional[str] = None
     linkedin_url: Optional[str] = None
     footer_tagline: Optional[str] = None
+    project_sort_mode: Optional[str] = None
 
 
 class SiteContent(SiteContentBase):

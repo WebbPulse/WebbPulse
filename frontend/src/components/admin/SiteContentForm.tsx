@@ -274,6 +274,35 @@ export const SiteContentForm: React.FC<SiteContentFormProps> = ({
         </div>
       </section>
 
+      <section className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          Projects
+        </h3>
+        <div>
+          <label className={labelClass}>Project sort order</label>
+          <select
+            value={form.project_sort_mode}
+            onChange={e =>
+              setForm(prev => ({
+                ...prev,
+                project_sort_mode: e.target.value,
+              }))
+            }
+            className={inputClass}
+          >
+            <option value="manual">Manual (use each project's order)</option>
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="title_asc">Title (A–Z)</option>
+          </select>
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            Controls how the projects section is ordered on the site. Featured
+            projects always appear above non-featured ones; this setting orders
+            projects within each group.
+          </p>
+        </div>
+      </section>
+
       <div className="flex gap-2">
         <Button type="submit" variant="primary" disabled={loading}>
           {loading ? 'Saving…' : 'Save Site Content'}

@@ -15,6 +15,7 @@ class Project(Base):
     github_url = Column(String, nullable=True)
     live_url = Column(String, nullable=True)
     featured = Column(Boolean, default=False)
+    display_order = Column(Integer, nullable=False, default=0)  # Manual sort order
     is_active = Column(Boolean, default=True)  # For soft deletes
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

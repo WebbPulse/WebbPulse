@@ -5,11 +5,20 @@ from sqlalchemy.orm import Session
 
 from ....core.security import get_current_user
 from ....database import get_db
-from ....models import Project, User
+from ....models import Project, SiteContent, User
 from ....schemas import Project as ProjectSchema
 from ....schemas import ProjectCreate, ProjectList, ProjectUpdate
 
 router = APIRouter()
+
+# Secondary ordering applied within the featured / non-featured groups.
+# Featured projects are always pinned above non-featured ones.
+_SORT_MODES = {
+    "manual": (Project.display_order.asc(), Project.created_at.desc()),
+    "newest": (Project.created_at.desc(),),
+    "oldest": (Project.created_at.asc(),),
+    "title_asc": (Project.title.asc(),),
+}
 
 
 @router.get("/", response_model=List[ProjectList])
@@ -19,13 +28,27 @@ async def get_projects(
     featured_only: bool = Query(False),
     db: Session = Depends(get_db),
 ):
-    """Get all active projects with pagination and optional featured filter"""
+    """Get all active projects with pagination and optional featured filter.
+
+    Featured projects are always pinned first; the site-wide
+    ``project_sort_mode`` controls the secondary ordering within the
+    featured and non-featured groups.
+    """
     query = db.query(Project).filter(Project.is_active)
 
     if featured_only:
         query = query.filter(Project.featured)
 
-    projects = query.order_by(Project.created_at.desc()).offset(skip).limit(limit).all()
+    site_content = db.query(SiteContent).filter(SiteContent.id == 1).first()
+    sort_mode = str(site_content.project_sort_mode) if site_content else "manual"
+    secondary = _SORT_MODES.get(sort_mode, _SORT_MODES["manual"])
+
+    projects = (
+        query.order_by(Project.featured.desc(), *secondary)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
     return projects
 
 

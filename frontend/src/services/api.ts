@@ -29,6 +29,7 @@ export interface Project {
   github_url?: string;
   live_url?: string;
   featured: boolean;
+  display_order: number;
   created_at: string;
 }
 
@@ -132,6 +133,7 @@ export interface SiteContent {
   github_url?: string | null;
   linkedin_url?: string | null;
   footer_tagline?: string | null;
+  project_sort_mode: string;
   created_at: string;
   updated_at?: string | null;
 }

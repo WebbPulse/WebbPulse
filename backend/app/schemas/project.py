@@ -12,6 +12,7 @@ class ProjectBase(BaseModel):
     github_url: Optional[str] = None
     live_url: Optional[str] = None
     featured: bool = False
+    display_order: int = 0
 
 
 class ProjectCreate(ProjectBase):
@@ -26,6 +27,7 @@ class ProjectUpdate(BaseModel):
     github_url: Optional[str] = None
     live_url: Optional[str] = None
     featured: Optional[bool] = None
+    display_order: Optional[int] = None
     is_active: Optional[bool] = None
 
 
@@ -47,6 +49,7 @@ class ProjectList(BaseModel):
     github_url: Optional[str] = None
     live_url: Optional[str] = None
     featured: bool
+    display_order: int
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

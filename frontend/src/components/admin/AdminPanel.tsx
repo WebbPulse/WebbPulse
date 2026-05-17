@@ -38,6 +38,7 @@ const EMPTY_PROJECT: ProjectFormData = {
   github_url: '',
   live_url: '',
   featured: false,
+  display_order: 0,
 };
 const EMPTY_EXPERIENCE: ExperienceFormData = {
   title: '',
@@ -100,6 +101,7 @@ const EMPTY_SITE_CONTENT: SiteContentFormData = {
   github_url: '',
   linkedin_url: '',
   footer_tagline: '',
+  project_sort_mode: 'manual',
 };
 
 const TABS: { id: AdminTab; label: string }[] = [
@@ -254,6 +256,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ className = '' }) => {
         github_url: r.data.github_url || '',
         linkedin_url: r.data.linkedin_url || '',
         footer_tagline: r.data.footer_tagline || '',
+        project_sort_mode: r.data.project_sort_mode || 'manual',
       });
     }
   };
@@ -299,6 +302,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ className = '' }) => {
       github_url: p.github_url || '',
       live_url: p.live_url || '',
       featured: p.featured,
+      display_order: p.display_order ?? 0,
     });
     setShowProjectForm(true);
   };

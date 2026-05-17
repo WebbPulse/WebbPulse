@@ -31,5 +31,9 @@ class SiteContent(Base):
 
     footer_tagline = Column(String, nullable=True)
 
+    # Site-wide ordering for the projects section.
+    # One of: manual, newest, oldest, title_asc
+    project_sort_mode = Column(String, nullable=False, server_default="manual")
+
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
