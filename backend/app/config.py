@@ -26,6 +26,8 @@ class Settings(BaseSettings):
 
     # Application
     APP_NAME: str = "Portfolio Blog API"
+    # Canonical public site origin, used to build sitemap/robots URLs.
+    SITE_URL: str = "https://www.webbpulse.com"
     DEBUG: bool = False
     LOG_SQL_QUERIES: bool = False  # Set to True to see SQL queries in logs
     CORS_ORIGINS: str = (

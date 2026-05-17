@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from .api.seo import router as seo_router
 from .api.v1.api import api_router
 from .config import settings
 from .core.admin import seed_admin_user
@@ -90,6 +91,9 @@ app.middleware("http")(rate_limit_middleware)
 
 # Include API routes
 app.include_router(api_router, prefix="/api/v1")
+
+# SEO endpoints at the app root: /sitemap.xml and /robots.txt
+app.include_router(seo_router)
 
 
 @app.get("/")
