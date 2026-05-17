@@ -21,16 +21,13 @@ depends_on: Union[str, Sequence[str], None] = None
 SEED_HERO_TITLE = "Hi, I'm Tyler Webb"
 SEED_HERO_SUBTITLE = "Software Engineer"
 SEED_HERO_DESCRIPTION = (
-    "Software engineer building privacy-conscious software. Background in "
-    "network engineering and full-stack web."
+    "Software engineer building reliable, well-crafted software. Background "
+    "in network engineering and full-stack web."
 )
 SEED_ABOUT_PARAGRAPHS = [
     (
-        "Hi, I'm Tyler. I'm a software engineer who builds systems that "
-        "protect people and property in a privacy-sensitive way. Before "
-        "moving into engineering full time, I spent ~4 years as a technical "
-        "and escalation engineer, and started my career as a network "
-        "engineer at Midwest Energy."
+        "Hi, I'm Tyler. I'm a software engineer who enjoys building "
+        "reliable, well-crafted systems."
     ),
     (
         "Outside of work I build personal projects (this site included), "
@@ -65,7 +62,7 @@ SEED_ABOUT_VALUES = [
     },
 ]
 SEED_FOOTER_TAGLINE = (
-    "Software engineer focused on building reliable, privacy-conscious systems."
+    "Software engineer focused on building reliable, maintainable systems."
 )
 
 
